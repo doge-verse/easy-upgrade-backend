@@ -1,0 +1,21 @@
+database:
+  dialect: mysql
+  user:
+  password:
+  host:
+  port:
+  dbname:
+  max_idle_conns:
+  max_open_conns:
+  config: charset=utf8mb4&parseTime=True&loc=Local
+
+
+gin:
+  mode: debug
+
+session:
+  size: 10
+  network: tcp
+  address:
+  password:
+  keyPairs:
