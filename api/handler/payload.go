@@ -1,4 +1,4 @@
-package api
+package handler
 
 import (
 	"fmt"
@@ -16,10 +16,10 @@ const (
 	respNoAuth  = 4 // "NoAuth"
 )
 
-// resp .
+// Resp .
 type resp map[string]interface{}
 
-func ok(c *gin.Context, resp resp) {
+func success(c *gin.Context, resp resp) {
 	result := make(map[string]interface{})
 	if resp != nil {
 		for key, value := range resp {

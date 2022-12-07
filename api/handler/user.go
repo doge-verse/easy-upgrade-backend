@@ -1,8 +1,8 @@
-package api
+package handler
 
 import (
 	"github.com/doge-verse/easy-upgrade-backend/internal/user"
-	"github.com/doge-verse/easy-upgrade-backend/pkg"
+	"github.com/doge-verse/easy-upgrade-backend/models"
 	"github.com/doge-verse/easy-upgrade-backend/util"
 
 	"github.com/gin-gonic/gin"
@@ -25,7 +25,7 @@ func getUserByQuery(c *gin.Context) {
 		fail(c, err)
 		return
 	}
-	ok(c, resp{
+	success(c, resp{
 		"data": userInfo,
 	})
 }
@@ -43,14 +43,14 @@ func updateEmail(c *gin.Context) {
 		fail(c, err)
 		return
 	}
-	ok(c, resp{
+	success(c, resp{
 		"data": nil,
 	})
 }
 
 // registerUser
 func registerUser(c *gin.Context) {
-	param := pkg.User{}
+	param := models.User{}
 	if err := c.ShouldBindQuery(&param); err != nil {
 		fail(c, err)
 		return
@@ -60,7 +60,7 @@ func registerUser(c *gin.Context) {
 		fail(c, err)
 		return
 	}
-	ok(c, resp{
+	success(c, resp{
 		"data": userInfo,
 	})
 }

@@ -1,15 +1,16 @@
-package api
+package handler
 
 import (
+	"github.com/doge-verse/easy-upgrade-backend/api/middleware"
 	"github.com/doge-verse/easy-upgrade-backend/internal/conf"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
-// initRouter .
-func initRouter(router *gin.Engine) {
-	router.Use(Cors())
+// InitRouter .
+func InitRouter(router *gin.Engine) {
+	router.Use(middleware.Cors())
 
 	router.Static("/api/docs", "./docs")
 
@@ -35,6 +36,7 @@ func initNeedAuthRouter(r *gin.Engine) {
 	{
 		contractGroup.GET("/", getUserContract)
 		contractGroup.POST("/", addContract)
-		contractGroup.GET("/record", getContractRecord)
+		contractGroup.GET("/history", getContractHistory)
+		contractGroup.POST("/notifier", addNotifier)
 	}
 }

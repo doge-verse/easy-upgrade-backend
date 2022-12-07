@@ -1,7 +1,7 @@
-package api
+package middleware
 
 import (
-	"github.com/doge-verse/easy-upgrade-backend/pkg"
+	"github.com/doge-verse/easy-upgrade-backend/models"
 	"github.com/doge-verse/easy-upgrade-backend/util"
 
 	"github.com/gin-gonic/gin"
@@ -14,7 +14,7 @@ const (
 )
 
 // paginationByGet
-func paginationByGet(c *gin.Context) *pkg.Pagination {
+func paginationByGet(c *gin.Context) *models.Pagination {
 	page := c.Query("page")
 	pageSize := c.Query("pageSize")
 	var p uint = Page
@@ -31,7 +31,7 @@ func paginationByGet(c *gin.Context) *pkg.Pagination {
 			ps = temp
 		}
 	}
-	return &pkg.Pagination{
+	return &models.Pagination{
 		Total:    0,
 		PageSize: ps,
 		Current:  p,

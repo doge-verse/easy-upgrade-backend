@@ -1,17 +1,16 @@
-package api
+package handler
 
 import (
 	"fmt"
 
 	"github.com/doge-verse/easy-upgrade-backend/internal/contract"
-	"github.com/doge-verse/easy-upgrade-backend/pkg"
+	"github.com/doge-verse/easy-upgrade-backend/models"
 	"github.com/doge-verse/easy-upgrade-backend/util"
-
 	"github.com/gin-gonic/gin"
 )
 
 func addContract(c *gin.Context) {
-	param := pkg.Contract{}
+	param := models.Contract{}
 	if err := c.ShouldBindQuery(&param); err != nil {
 		fail(c, err)
 		return
@@ -25,7 +24,7 @@ func addContract(c *gin.Context) {
 		fail(c, err)
 		return
 	}
-	ok(c, resp{
+	success(c, resp{
 		"data": result,
 	})
 }
@@ -46,10 +45,10 @@ func getUserContract(c *gin.Context) {
 	})
 }
 
-func getContractRecord(c *gin.Context) {
+func getContractHistory(c *gin.Context) {
 	addr := c.Query("addr")
 	if addr == "" {
-		fail(c, fmt.Errorf("The addr can not be empty."))
+		fail(c, fmt.Errorf("the addr can not be empty"))
 		return
 	}
 	records, err := contract.Repo.GetContractRecord(addr)
@@ -59,5 +58,26 @@ func getContractRecord(c *gin.Context) {
 	}
 	okArr(c, resp{
 		"data": records,
+	})
+}
+
+func addNotifier(c *gin.Context) {
+	param := models.Notifier{}
+	if err := c.ShouldBindQuery(&param); err != nil {
+		fail(c, err)
+		return
+	}
+	param.UserID = getUserID(c)
+	if len(param.ContractAddr) < 32 {
+		fail(c, fmt.Errorf("address wrong"))
+		return
+	}
+	err := contract.Repo.AddNotifier(&param)
+	if err != nil {
+		fail(c, err)
+		return
+	}
+	success(c, resp{
+		"data": nil,
 	})
 }

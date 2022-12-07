@@ -1,4 +1,4 @@
-package api
+package handler
 
 import (
 	"fmt"
@@ -6,6 +6,8 @@ import (
 
 	"github.com/doge-verse/easy-upgrade-backend/internal/shared"
 	"github.com/doge-verse/easy-upgrade-backend/internal/user"
+	"github.com/pkg/errors"
+	"github.com/spf13/cast"
 
 	"github.com/doge-verse/easy-upgrade-backend/util"
 
@@ -29,9 +31,9 @@ func auth(c *gin.Context) {
 	userID := getUserIDFromSession(c)
 	userInfo, err := user.Repo.GetUserByQuery(user.Query{UserID: userID})
 	if err != nil {
-		log.Println("err", err)
-		// unLogin(c)
-		// c.Abort()
+		fail(c, errors.New("un login"))
+		c.Abort()
+		return
 	}
 	ctx := shared.WithUser(c.Request.Context(), userInfo)
 	c.Request = c.Request.WithContext(ctx)
@@ -42,7 +44,7 @@ func auth(c *gin.Context) {
 func currentUser(c *gin.Context) {
 	userInfo, exist := shared.GetUser(c.Request.Context())
 	if !exist {
-		ok(c, nil)
+		success(c, nil)
 		return
 	}
 	session := sessions.Default(c)
@@ -50,7 +52,7 @@ func currentUser(c *gin.Context) {
 	if err != nil {
 		log.Println(err)
 	}
-	ok(c, resp{
+	success(c, resp{
 		"data": userInfo,
 	})
 }
@@ -60,7 +62,7 @@ func currentLoginUser(c *gin.Context) {
 	session := sessions.Default(c)
 	t := session.Get("userID")
 	if t == nil {
-		ok(c, resp{
+		success(c, resp{
 			"data": false,
 		})
 		return
@@ -68,14 +70,14 @@ func currentLoginUser(c *gin.Context) {
 	userID := t.(uint)
 	userInfo, err := user.Repo.GetUserByQuery(user.Query{UserID: userID})
 	if userInfo == nil || err != nil {
-		ok(c, nil)
+		success(c, nil)
 		return
 	}
 	err = session.Save()
 	if err != nil {
 		log.Println(err)
 	}
-	ok(c, resp{
+	success(c, resp{
 		"data":  userInfo,
 		"login": true,
 	})
@@ -109,7 +111,7 @@ func login(c *gin.Context) {
 	if err != nil {
 		log.Println(err)
 	}
-	ok(c, resp{
+	success(c, resp{
 		"data":  userInfo,
 		"token": token,
 	})
@@ -123,5 +125,9 @@ func logoutUser(c *gin.Context) {
 	if err != nil {
 		log.Println(err)
 	}
-	ok(c, nil)
+	success(c, nil)
+}
+
+func getUserID(c *gin.Context) int64 {
+	return cast.ToInt64(sessions.Default(c).Get("userID"))
 }

@@ -1,4 +1,4 @@
-package pkg
+package models
 
 // Pagination generator
 type Pagination struct {

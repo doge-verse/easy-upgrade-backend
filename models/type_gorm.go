@@ -1,4 +1,4 @@
-package pkg
+package models
 
 import (
 	"time"
@@ -7,7 +7,7 @@ import (
 // GormModel base user
 type GormModel struct {
 	ID        uint       `json:"id" gorm:"primary_key"`
-	CreatedAt time.Time  `json:"createdAt" sql:"index"`
-	UpdatedAt time.Time  `json:"updatedAt"`
+	CreatedAt int64      `json:"createdAt" sql:"index"`
+	UpdatedAt int64      `json:"updatedAt"`
 	DeletedAt *time.Time `json:"-" sql:"index"`
 }

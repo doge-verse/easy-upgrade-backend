@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/doge-verse/easy-upgrade-backend/internal/conf"
-	"github.com/doge-verse/easy-upgrade-backend/pkg"
+	"github.com/doge-verse/easy-upgrade-backend/models"
 
 	"gorm.io/driver/mysql"
 	_ "gorm.io/driver/mysql"
@@ -40,9 +40,9 @@ func Init() {
 		Db = Db.Debug()
 	}
 	if err := Db.AutoMigrate(
-		&pkg.User{},
-		&pkg.Contract{},
-		&pkg.ContractUpdateRecord{},
+		&models.User{},
+		&models.Contract{},
+		&models.ContractHistory{},
 	); err != nil {
 		log.Fatal("AutoMigrate error", err)
 	}
