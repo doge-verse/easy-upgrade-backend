@@ -31,7 +31,7 @@ func auth(c *gin.Context) {
 	userID := getUserIDFromSession(c)
 	userInfo, err := user.Repo.GetUserByQuery(user.Query{UserID: userID})
 	if err != nil {
-		fail(c, errors.New("un login"))
+		fail(c, errors.New("Not logged in"))
 		c.Abort()
 		return
 	}

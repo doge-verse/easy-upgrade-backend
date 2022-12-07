@@ -1,1 +1,7 @@
 .idea/*
+.vscode/settings.json
+go.sum
+build/*
+auto.sh
+docker-compose.yaml
+config.yaml
