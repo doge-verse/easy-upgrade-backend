@@ -3,11 +3,11 @@ database:
   user:
   password:
   host:
-  port:
-  dbname:
-  max_idle_conns:
-  max_open_conns:
-
+  port: 3306
+  dbname: easy-upgrade
+  max_idle_conns: 10
+  max_open_conns: 100
+  auto_migrate: false
 
 gin:
   mode: debug

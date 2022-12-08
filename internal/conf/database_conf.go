@@ -14,6 +14,7 @@ type Database struct {
 	MaxOpenConn int
 	Port        uint
 	Debug       bool
+	AutoMigrate bool
 }
 
 // GetDatabase .
@@ -29,5 +30,6 @@ func GetDatabase() *Database {
 		MaxIDLEConn: viper.GetInt("database.max_idle_conns"),
 		MaxOpenConn: viper.GetInt("database.max_open_conns"),
 		Debug:       viper.GetBool("database.debug"),
+		AutoMigrate: viper.GetBool("database.auto_migrate"),
 	}
 }

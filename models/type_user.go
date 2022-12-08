@@ -4,7 +4,7 @@ package models
 type User struct {
 	GormModel
 	Name        string
-	Address     string
+	Address     string `gorm:"NOT NULL"`
 	Email       string
 	ContractArr []Contract
 }

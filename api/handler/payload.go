@@ -60,7 +60,7 @@ func unLogin(c *gin.Context) {
 
 // fail
 func fail(c *gin.Context, e error) {
-	logError(e)
+	// logError(e)
 	c.JSON(http.StatusOK, resp{
 		"resultCode": respFail,
 		"resultMsg":  e.Error(),

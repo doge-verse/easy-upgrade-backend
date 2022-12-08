@@ -1,7 +1,8 @@
 .idea/*
-.vscode/settings.json
+.vscode/*
 go.sum
 build/*
 auto.sh
 docker-compose.yaml
 config.yaml
+*.exe

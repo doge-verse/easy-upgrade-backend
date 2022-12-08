@@ -11,7 +11,7 @@ import (
 
 func addContract(c *gin.Context) {
 	param := models.Contract{}
-	if err := c.ShouldBindQuery(&param); err != nil {
+	if err := c.ShouldBind(&param); err != nil {
 		fail(c, err)
 		return
 	}

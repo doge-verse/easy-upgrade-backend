@@ -42,6 +42,12 @@ func Init() {
 	if dbConf.Debug {
 		Db = Db.Debug()
 	}
+	if dbConf.AutoMigrate {
+		autoMigrate()
+	}
+}
+
+func autoMigrate() {
 	if err := Db.AutoMigrate(
 		&models.User{},
 		&models.Contract{},

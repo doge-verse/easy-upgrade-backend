@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/doge-verse/easy-upgrade-backend/internal/blockchain"
 	"github.com/doge-verse/easy-upgrade-backend/internal/shared"
 	"github.com/doge-verse/easy-upgrade-backend/internal/user"
 	"github.com/doge-verse/easy-upgrade-backend/models"
-	"github.com/pkg/errors"
 	"github.com/spf13/cast"
 
 	"github.com/doge-verse/easy-upgrade-backend/util"
@@ -20,8 +20,6 @@ func getUserIDFromSession(c *gin.Context) uint {
 	session := sessions.Default(c)
 	t := session.Get("userID")
 	if t == nil {
-		unLogin(c)
-		// c.Abort()
 		return 0
 	}
 	return t.(uint)
@@ -31,8 +29,8 @@ func getUserIDFromSession(c *gin.Context) uint {
 func auth(c *gin.Context) {
 	userID := getUserIDFromSession(c)
 	userInfo, err := user.Repo.GetUserByQuery(user.Query{UserID: userID})
-	if err != nil {
-		fail(c, errors.New("Not logged in"))
+	if err != nil || userID == 0 {
+		unLogin(c)
 		c.Abort()
 		return
 	}
@@ -89,9 +87,14 @@ func login(c *gin.Context) {
 	param := &struct {
 		Address   string `json:"address" form:"address"`
 		Signature string `json:"signature" form:"signature"`
+		SignData  string `json:"signData" form:"signData"`
 	}{}
-	if err := c.ShouldBindQuery(param); err != nil {
-		fail(c, fmt.Errorf("login fail"))
+	if err := c.ShouldBind(param); err != nil {
+		fail(c, fmt.Errorf("param error"))
+		return
+	}
+	if !blockchain.CheckAddr(param.Address, param.Signature, param.SignData) {
+		fail(c, fmt.Errorf("signature fail"))
 		return
 	}
 	userInfo, err := user.Repo.GetUserByQuery(user.Query{
@@ -114,8 +117,7 @@ func login(c *gin.Context) {
 	}
 	session := sessions.Default(c)
 	session.Set("userID", userInfo.ID)
-	err = session.Save()
-	if err != nil {
+	if err = session.Save(); err != nil {
 		log.Println(err)
 	}
 	success(c, resp{
