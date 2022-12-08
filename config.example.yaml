@@ -18,3 +18,7 @@ session:
   address:
   password:
   keyPairs:
+
+rpc:
+  eth-mainnet: 
+  polygo_mainnet:

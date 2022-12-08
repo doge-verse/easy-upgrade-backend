@@ -2,6 +2,7 @@ package contract
 
 import (
 	"github.com/doge-verse/easy-upgrade-backend/api/request"
+	"github.com/doge-verse/easy-upgrade-backend/internal/blockchain"
 	"github.com/doge-verse/easy-upgrade-backend/models"
 
 	"gorm.io/gorm"
@@ -13,10 +14,25 @@ type sqlRepo struct {
 
 // AddContract .
 func (repo sqlRepo) AddContract(contract *models.Contract) (*models.Contract, error) {
-	if err := repo.db.Model(&models.Contract{}).Create(contract).Error; err != nil {
+	if err := repo.db.
+		Model(&models.Contract{}).
+		Create(contract).Error; err != nil {
 		return nil, err
 	}
-	// TODO: add get contract update history list
+	historyList, err := blockchain.GetOwnershipTransferredEvent(contract.ContractAddr, contract.Network)
+	if err == nil && len(historyList) > 0 {
+	}
+	for k, v := range historyList {
+		historyList[k].ContractID = contract.ID
+		if v.UpdateTime > contract.LastUpdate {
+			contract.LastUpdate = v.UpdateTime
+		}
+	}
+	// insert contract history
+	repo.db.Model(&models.ContractHistory{}).CreateInBatches(historyList, len(historyList))
+	// update contract newest update time
+	repo.db.Model(&models.Contract{}).Updates(contract)
+
 	return contract, nil
 }
 
@@ -56,8 +72,6 @@ func (repo sqlRepo) PageContractHistory(addr string, pageInfo request.PageInfo) 
 	}
 	return records, total, nil
 }
-
-// TODO: after update need to modify contract some filed
 
 func count(db *gorm.DB) (int64, error) {
 	var count int64
