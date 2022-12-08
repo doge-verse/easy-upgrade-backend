@@ -10,8 +10,6 @@ import (
 	"github.com/doge-verse/easy-upgrade-backend/models"
 	"github.com/spf13/cast"
 
-	"github.com/doge-verse/easy-upgrade-backend/util"
-
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
@@ -110,19 +108,13 @@ func login(c *gin.Context) {
 			return
 		}
 	}
-	token, err := util.Sign(userInfo.ID)
-	if err != nil {
-		fail(c, err)
-		return
-	}
 	session := sessions.Default(c)
 	session.Set("userID", userInfo.ID)
 	if err = session.Save(); err != nil {
 		log.Println(err)
 	}
 	success(c, resp{
-		"data":  userInfo,
-		"token": token,
+		"data": userInfo,
 	})
 }
 

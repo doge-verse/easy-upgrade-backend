@@ -26,12 +26,12 @@ func initNeedAuthRouter(r *gin.Engine) {
 	r.Use(auth)
 	r.GET("/api/currentUser", currentUser)
 
-	userGroup := r.Group("/api/user").Group("/")
+	userGroup := r.Group("/api/user")
 	{
 		userGroup.GET("/get", getUserByQuery)
 		userGroup.POST("/email", updateEmail)
 	}
-	contractGroup := r.Group("/api/contract").Group("/")
+	contractGroup := r.Group("/api/contract")
 	{
 		contractGroup.GET("", getUserContract)
 		contractGroup.POST("", addContract)
