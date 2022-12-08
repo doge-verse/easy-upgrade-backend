@@ -1,0 +1,7 @@
+basePath: /api
+info:
+  contact: {}
+  title: easy-upgrade-backend Swagger
+  version: "1.0"
+paths: {}
+swagger: "2.0"

@@ -2,16 +2,20 @@ package handler
 
 import (
 	"github.com/doge-verse/easy-upgrade-backend/api/middleware"
+	"github.com/doge-verse/easy-upgrade-backend/docs"
 	"github.com/doge-verse/easy-upgrade-backend/internal/conf"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 // InitRouter .
 func InitRouter(router *gin.Engine) {
 	router.Use(middleware.Cors())
 
-	router.Static("/api/docs", "./docs")
+	docs.SwaggerInfo.BasePath = "/api/"
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
 	router.Use(sessions.Sessions("easy-upgrade", conf.GetSessionStore()))
 
