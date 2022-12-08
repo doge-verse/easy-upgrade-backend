@@ -10,7 +10,7 @@ type CQuery struct {
 	Address string
 }
 
-func (c CQuery) cWhere() func(db *gorm.DB) *gorm.DB {
+func (c CQuery) where() func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		if c.Address != "" {
 			db = db.Where("address = ?", c.Address)

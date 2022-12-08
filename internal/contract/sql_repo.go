@@ -27,7 +27,7 @@ func (repo sqlRepo) PageUserContractArr(userID uint, pageInfo request.PageInfo) 
 		UserID: userID,
 	}
 
-	db := repo.db.Session(&gorm.Session{}).Model(&models.Contract{}).Scopes(query.cWhere())
+	db := repo.db.Session(&gorm.Session{}).Model(&models.Contract{}).Scopes(query.where())
 	total, err := count(db)
 	if err != nil {
 		return nil, 0, err
@@ -45,7 +45,7 @@ func (repo sqlRepo) PageContractHistory(addr string, pageInfo request.PageInfo) 
 	query := CHQuery{
 		ContractAddr: addr,
 	}
-	db := repo.db.Session(&gorm.Session{}).Model(&models.ContractHistory{}).Scopes(query.chWhere())
+	db := repo.db.Session(&gorm.Session{}).Model(&models.ContractHistory{}).Scopes(query.where())
 	total, err := count(db)
 	if err != nil {
 		return nil, 0, err
