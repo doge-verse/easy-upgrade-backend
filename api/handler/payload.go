@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
@@ -16,37 +15,32 @@ const (
 	respNoAuth  = 4 // "NoAuth"
 )
 
-// Resp .
-type resp map[string]interface{}
+type respResult struct {
+	Data interface{} `json:"data"`
+	Code int         `json:"code"`
+	Msg  string      `json:"msg"`
+}
 
-func success(c *gin.Context, resp resp) {
-	result := make(map[string]interface{})
-	if resp != nil {
-		for key, value := range resp {
-			if fmt.Sprint(value) != "<nil>" {
-				result[key] = value
-			}
-		}
-	}
-	result["code"] = respOk
-	result["msg"] = "Success"
+func success(c *gin.Context, resp *respResult) {
+	resp.Code = respOk
+	resp.Msg = "success"
 
-	c.JSON(http.StatusOK, result)
+	c.JSON(http.StatusOK, resp)
 }
 
 func unLogin(c *gin.Context) {
-	c.JSON(http.StatusOK, resp{
-		"code": respUnLogin,
-		"msg":  "unLogin",
+	c.JSON(http.StatusOK, respResult{
+		Code: respUnLogin,
+		Msg:  "unLogin",
 	})
 }
 
 // fail
 func fail(c *gin.Context, e error) {
 	// logError(e)
-	c.JSON(http.StatusOK, resp{
-		"code": respFail,
-		"msg":  e.Error(),
+	c.JSON(http.StatusOK, respResult{
+		Code: respFail,
+		Msg:  e.Error(),
 	})
 }
 

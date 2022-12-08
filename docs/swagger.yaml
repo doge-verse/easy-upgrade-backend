@@ -1,7 +1,121 @@
 basePath: /api
+definitions:
+  handler.respResult:
+    properties:
+      code:
+        type: integer
+      data: {}
+      msg:
+        type: string
+    type: object
+  models.Contract:
+    properties:
+      contractAddr:
+        type: string
+      contractHistoryArr:
+        items:
+          $ref: '#/definitions/models.ContractHistory'
+        type: array
+      contractName:
+        type: string
+      createdAt:
+        type: integer
+      email:
+        type: string
+      id:
+        type: integer
+      lastUpdate:
+        type: integer
+      network:
+        type: integer
+      updatedAt:
+        type: integer
+      userID:
+        type: integer
+    type: object
+  models.ContractHistory:
+    properties:
+      contractID:
+        type: integer
+      createdAt:
+        type: integer
+      id:
+        type: integer
+      network:
+        type: integer
+      newOwner:
+        type: string
+      previousOwner:
+        type: string
+      updateBlock:
+        type: integer
+      updateTX:
+        type: string
+      updateTime:
+        type: integer
+      updatedAt:
+        type: integer
+    type: object
+  models.User:
+    properties:
+      address:
+        type: string
+      contractArr:
+        items:
+          $ref: '#/definitions/models.Contract'
+        type: array
+      createdAt:
+        type: integer
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      updatedAt:
+        type: integer
+    type: object
+  request.Login:
+    properties:
+      address:
+        type: string
+      signData:
+        type: string
+      signature:
+        type: string
+    type: object
 info:
   contact: {}
-  title: easy-upgrade-backend Swagger
-  version: "1.0"
-paths: {}
+  title: easy-upgrade-backend
+  version: 1.0.0
+paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: login param
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.Login'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.respResult'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.User'
+              type: object
+      summary: User login
+      tags:
+      - auth
+schemes:
+- http
+- https
 swagger: "2.0"

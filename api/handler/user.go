@@ -25,8 +25,8 @@ func getUserByQuery(c *gin.Context) {
 		fail(c, err)
 		return
 	}
-	success(c, resp{
-		"data": userInfo,
+	success(c, &respResult{
+		Data: userInfo,
 	})
 }
 
@@ -43,8 +43,8 @@ func updateEmail(c *gin.Context) {
 		fail(c, err)
 		return
 	}
-	success(c, resp{
-		"data": nil,
+	success(c, &respResult{
+		Data: nil,
 	})
 }
 
@@ -60,7 +60,7 @@ func registerUser(c *gin.Context) {
 		fail(c, err)
 		return
 	}
-	success(c, resp{
-		"data": userInfo,
+	success(c, &respResult{
+		Data: userInfo,
 	})
 }

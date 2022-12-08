@@ -3,7 +3,6 @@ package blockchain
 import "github.com/ethereum/go-ethereum/crypto"
 
 func CheckAddr(addr, signature, signData string) bool {
-	return true
 	data := []byte(signData)
 	sign := []byte(signature)
 	signer, err := crypto.SigToPub(data, sign)

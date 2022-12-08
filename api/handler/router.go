@@ -10,16 +10,15 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-// InitRouter .
 func InitRouter(router *gin.Engine) {
 	router.Use(middleware.Cors())
 
-	docs.SwaggerInfo.BasePath = "/api/"
+	docs.SwaggerInfo.BasePath = "/api"
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
 	router.Use(sessions.Sessions("easy-upgrade", conf.GetSessionStore()))
 
-	router.POST("/api/login", login)
+	router.POST("/api/Login", login)
 	router.POST("/api/logout", logoutUser)
 	router.POST("/api/user/register", registerUser)
 

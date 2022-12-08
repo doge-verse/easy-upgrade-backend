@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/doge-verse/easy-upgrade-backend/api/request"
 	"github.com/doge-verse/easy-upgrade-backend/internal/blockchain"
 	"github.com/doge-verse/easy-upgrade-backend/internal/shared"
 	"github.com/doge-verse/easy-upgrade-backend/internal/user"
@@ -49,8 +50,8 @@ func currentUser(c *gin.Context) {
 	if err != nil {
 		log.Println(err)
 	}
-	success(c, resp{
-		"data": userInfo,
+	success(c, &respResult{
+		Data: userInfo,
 	})
 }
 
@@ -59,8 +60,8 @@ func currentLoginUser(c *gin.Context) {
 	session := sessions.Default(c)
 	t := session.Get("userID")
 	if t == nil {
-		success(c, resp{
-			"data": false,
+		success(c, &respResult{
+			Data: false,
 		})
 		return
 	}
@@ -74,20 +75,22 @@ func currentLoginUser(c *gin.Context) {
 	if err != nil {
 		log.Println(err)
 	}
-	success(c, resp{
-		"data":  userInfo,
-		"login": true,
+	success(c, &respResult{
+		Data: userInfo,
 	})
 }
 
 // login .
+// @Tags auth
+// @Summary User login
+// @accept application/json
+// @Produce application/json
+// @Param data body request.Login true "login param"
+// @Success 200 {object} respResult{data=models.User}
+// @Router /login [post]
 func login(c *gin.Context) {
-	param := &struct {
-		Address   string `json:"address" form:"address"`
-		Signature string `json:"signature" form:"signature"`
-		SignData  string `json:"signData" form:"signData"`
-	}{}
-	if err := c.ShouldBind(param); err != nil {
+	var param request.Login
+	if err := c.ShouldBind(&param); err != nil {
 		fail(c, fmt.Errorf("param error"))
 		return
 	}
@@ -113,8 +116,8 @@ func login(c *gin.Context) {
 	if err = session.Save(); err != nil {
 		log.Println(err)
 	}
-	success(c, resp{
-		"data": userInfo,
+	success(c, &respResult{
+		Data: userInfo,
 	})
 }
 
@@ -126,7 +129,9 @@ func logoutUser(c *gin.Context) {
 	if err != nil {
 		log.Println(err)
 	}
-	success(c, nil)
+	success(c, &respResult{
+		Data: nil,
+	})
 }
 
 func getUserID(c *gin.Context) int64 {

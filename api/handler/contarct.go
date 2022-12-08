@@ -26,8 +26,8 @@ func addContract(c *gin.Context) {
 		fail(c, err)
 		return
 	}
-	success(c, resp{
-		"data": result,
+	success(c, &respResult{
+		Data: result,
 	})
 }
 
@@ -46,8 +46,8 @@ func getUserContract(c *gin.Context) {
 		fail(c, err)
 		return
 	}
-	success(c, resp{
-		"data": response.PageResult{
+	success(c, &respResult{
+		Data: response.PageResult{
 			List:     contractArr,
 			Total:    total,
 			PageNum:  pageInfo.PageNum,
@@ -72,8 +72,8 @@ func getContractHistory(c *gin.Context) {
 		fail(c, err)
 		return
 	}
-	success(c, resp{
-		"data": response.PageResult{
+	success(c, &respResult{
+		Data: response.PageResult{
 			List:     records,
 			Total:    total,
 			PageNum:  pageInfo.PageNum,
