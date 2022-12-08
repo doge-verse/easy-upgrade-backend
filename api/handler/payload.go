@@ -28,33 +28,16 @@ func success(c *gin.Context, resp resp) {
 			}
 		}
 	}
-	result["resultCode"] = respOk
-	result["resultMsg"] = "Success"
-
-	c.JSON(http.StatusOK, result)
-}
-
-func okArr(c *gin.Context, resp resp) {
-	result := make(map[string]interface{})
-	if resp != nil {
-		for key, value := range resp {
-			if fmt.Sprint(value) != "<nil>" {
-				data := make(map[string]interface{})
-				data[key] = value
-				result[key] = data
-			}
-		}
-	}
-	result["resultCode"] = respOk
-	result["resultMsg"] = "Success"
+	result["code"] = respOk
+	result["msg"] = "Success"
 
 	c.JSON(http.StatusOK, result)
 }
 
 func unLogin(c *gin.Context) {
 	c.JSON(http.StatusOK, resp{
-		"resultCode": respUnLogin,
-		"resultMsg":  "unLogin",
+		"code": respUnLogin,
+		"msg":  "unLogin",
 	})
 }
 
@@ -62,8 +45,8 @@ func unLogin(c *gin.Context) {
 func fail(c *gin.Context, e error) {
 	// logError(e)
 	c.JSON(http.StatusOK, resp{
-		"resultCode": respFail,
-		"resultMsg":  e.Error(),
+		"code": respFail,
+		"msg":  e.Error(),
 	})
 }
 

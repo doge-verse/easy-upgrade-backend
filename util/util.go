@@ -4,7 +4,7 @@ import (
 	"strconv"
 )
 
-// ParseUint
+// ParseUint .
 func ParseUint(key string) (uint, error) {
 	if key == "" {
 		return 0, nil
