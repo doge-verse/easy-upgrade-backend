@@ -27,7 +27,7 @@ func (repo sqlRepo) GetUserContractArr(userID uint) ([]models.Contract, error) {
 	return contractArr, nil
 }
 
-func (repo sqlRepo) GetContractRecord(addr string) ([]models.ContractHistory, error) {
+func (repo sqlRepo) GetContractHistory(addr string) ([]models.ContractHistory, error) {
 	var records []models.ContractHistory
 	if err := repo.db.Model(&models.ContractHistory{}).Where("contract_addr = ?", addr).Find(&records).Error; err != nil {
 		return nil, err
@@ -40,5 +40,6 @@ func (repo sqlRepo) AddNotifier(param *models.Notifier) error {
 		return err
 	}
 	// TODO: add get contract update history list
+
 	return nil
 }

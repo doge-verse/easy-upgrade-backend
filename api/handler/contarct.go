@@ -51,7 +51,7 @@ func getContractHistory(c *gin.Context) {
 		fail(c, fmt.Errorf("the addr can not be empty"))
 		return
 	}
-	records, err := contract.Repo.GetContractRecord(addr)
+	records, err := contract.Repo.GetContractHistory(addr)
 	if err != nil {
 		fail(c, err)
 		return

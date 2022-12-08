@@ -7,7 +7,7 @@ type repoI interface {
 
 	GetUserContractArr(userID uint) ([]models.Contract, error)
 
-	GetContractRecord(addr string) ([]models.ContractHistory, error)
+	GetContractHistory(addr string) ([]models.ContractHistory, error)
 
 	AddNotifier(param *models.Notifier) error
 }

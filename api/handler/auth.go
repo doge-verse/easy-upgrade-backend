@@ -6,6 +6,7 @@ import (
 
 	"github.com/doge-verse/easy-upgrade-backend/internal/shared"
 	"github.com/doge-verse/easy-upgrade-backend/internal/user"
+	"github.com/doge-verse/easy-upgrade-backend/models"
 	"github.com/pkg/errors"
 	"github.com/spf13/cast"
 
@@ -97,8 +98,14 @@ func login(c *gin.Context) {
 		Address: param.Address,
 	})
 	if err != nil {
-		fail(c, err)
-		return
+		newUser := &models.User{
+			Address: param.Address,
+		}
+		userInfo, err = user.Repo.UserRegister(newUser)
+		if err != nil {
+			fail(c, err)
+			return
+		}
 	}
 	token, err := util.Sign(userInfo.ID)
 	if err != nil {
