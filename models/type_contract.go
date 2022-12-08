@@ -8,5 +8,6 @@ type Contract struct {
 	ContractName       string
 	Network            string `gorm:"NOT NULL"`
 	LastUpdate         int64
+	Email              string
 	ContractHistoryArr []ContractHistory
 }

@@ -52,7 +52,6 @@ func autoMigrate() {
 		&models.User{},
 		&models.Contract{},
 		&models.ContractHistory{},
-		&models.Notifier{},
 	); err != nil {
 		log.Fatal("AutoMigrate error", err)
 	}

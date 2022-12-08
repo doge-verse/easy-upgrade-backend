@@ -11,6 +11,4 @@ type repoI interface {
 	PageUserContractArr(userID uint, pageInfo request.PageInfo) ([]models.Contract, int64, error)
 
 	PageContractHistory(addr string, pageInfo request.PageInfo) ([]models.ContractHistory, int64, error)
-
-	AddNotifier(param *models.Notifier) error
 }

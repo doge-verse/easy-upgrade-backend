@@ -16,6 +16,7 @@ func (repo sqlRepo) AddContract(contract *models.Contract) (*models.Contract, er
 	if err := repo.db.Model(&models.Contract{}).Create(contract).Error; err != nil {
 		return nil, err
 	}
+	// TODO: add get contract update history list
 	return contract, nil
 }
 
@@ -57,15 +58,6 @@ func (repo sqlRepo) PageContractHistory(addr string, pageInfo request.PageInfo) 
 }
 
 // TODO: after update need to modify contract some filed
-
-func (repo sqlRepo) AddNotifier(param *models.Notifier) error {
-	if err := repo.db.Model(&models.Notifier{}).Create(param).Error; err != nil {
-		return err
-	}
-	// TODO: add get contract update history list
-
-	return nil
-}
 
 func count(db *gorm.DB) (int64, error) {
 	var count int64

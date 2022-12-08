@@ -81,24 +81,3 @@ func getContractHistory(c *gin.Context) {
 		},
 	})
 }
-
-func addNotifier(c *gin.Context) {
-	param := models.Notifier{}
-	if err := c.ShouldBindQuery(&param); err != nil {
-		fail(c, err)
-		return
-	}
-	param.UserID = getUserID(c)
-	if len(param.ContractAddr) < 32 {
-		fail(c, fmt.Errorf("address wrong"))
-		return
-	}
-	err := contract.Repo.AddNotifier(&param)
-	if err != nil {
-		fail(c, err)
-		return
-	}
-	success(c, resp{
-		"data": nil,
-	})
-}
