@@ -19,20 +19,21 @@ func (repo sqlRepo) AddContract(contract *models.Contract) (*models.Contract, er
 		Create(contract).Error; err != nil {
 		return nil, err
 	}
-	historyList, err := blockchain.GetOwnershipTransferredEvent(contract.ContractAddr, contract.Network)
-	if err == nil && len(historyList) > 0 {
-	}
-	for k, v := range historyList {
-		historyList[k].ContractID = contract.ID
-		if v.UpdateTime > contract.LastUpdate {
-			contract.LastUpdate = v.UpdateTime
+	go func() {
+		historyList, err := blockchain.GetOwnershipTransferredEvent(contract.Address, contract.Network)
+		if err == nil && len(historyList) > 0 {
 		}
-	}
-	// insert contract history
-	repo.db.Model(&models.ContractHistory{}).CreateInBatches(historyList, len(historyList))
-	// update contract newest update time
-	repo.db.Model(&models.Contract{}).Updates(contract)
-
+		for k, v := range historyList {
+			historyList[k].ContractID = contract.ID
+			if v.UpdateTime > contract.LastUpdate {
+				contract.LastUpdate = v.UpdateTime
+			}
+		}
+		// insert contract history
+		repo.db.Model(&models.ContractHistory{}).CreateInBatches(historyList, len(historyList))
+		// update contract newest update time
+		repo.db.Model(&models.Contract{}).Updates(contract)
+	}()
 	return contract, nil
 }
 
@@ -57,10 +58,10 @@ func (repo sqlRepo) PageUserContractArr(userID uint, pageInfo request.PageInfo) 
 	return contractArr, total, nil
 }
 
-func (repo sqlRepo) PageContractHistory(addr string, pageInfo request.PageInfo) ([]models.ContractHistory, int64, error) {
+func (repo sqlRepo) PageContractHistory(contractID uint, pageInfo request.PageInfo) ([]models.ContractHistory, int64, error) {
 	var records []models.ContractHistory
 	query := CHQuery{
-		ContractAddr: addr,
+		ContractID: contractID,
 	}
 	db := repo.db.Session(&gorm.Session{}).Model(&models.ContractHistory{}).Scopes(query.where())
 	total, err := count(db)

@@ -10,14 +10,12 @@ definitions:
     type: object
   models.Contract:
     properties:
-      contractAddr:
+      address:
         type: string
       contractHistoryArr:
         items:
           $ref: '#/definitions/models.ContractHistory'
         type: array
-      contractName:
-        type: string
       createdAt:
         type: integer
       email:
@@ -26,6 +24,8 @@ definitions:
         type: integer
       lastUpdate:
         type: integer
+      name:
+        type: string
       network:
         type: integer
       updatedAt:
@@ -35,7 +35,7 @@ definitions:
     type: object
   models.ContractHistory:
     properties:
-      contractID:
+      contractId:
         type: integer
       createdAt:
         type: integer
@@ -75,6 +75,17 @@ definitions:
       updatedAt:
         type: integer
     type: object
+  request.Contract:
+    properties:
+      contractAddr:
+        type: string
+      contractName:
+        type: string
+      email:
+        type: string
+      network:
+        type: integer
+    type: object
   request.Login:
     properties:
       address:
@@ -83,6 +94,16 @@ definitions:
         type: string
       signature:
         type: string
+    type: object
+  response.PageResult:
+    properties:
+      list: {}
+      pageNum:
+        type: integer
+      pageSize:
+        type: integer
+      total:
+        type: integer
     type: object
 info:
   contact: {}
@@ -115,6 +136,104 @@ paths:
       summary: User login
       tags:
       - auth
+  /notifier:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: userID
+        in: query
+        name: userID
+        required: true
+        type: integer
+      - description: page number
+        in: query
+        name: pageNum
+        type: integer
+      - description: page size
+        in: query
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.respResult'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.PageResult'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/models.Contract'
+                        type: array
+                    type: object
+              type: object
+      summary: page query notify event
+      tags:
+      - notify
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: add notifier param
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.Contract'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.respResult'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.Contract'
+              type: object
+      summary: create notify event
+      tags:
+      - notify
+  /notifier/history:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: contract id
+        in: query
+        name: contractID
+        required: true
+        type: integer
+      - description: page number
+        in: query
+        name: pageNum
+        type: integer
+      - description: page size
+        in: query
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.respResult'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.Contract'
+              type: object
+      summary: page query update history
+      tags:
+      - notify
 schemes:
 - http
 - https

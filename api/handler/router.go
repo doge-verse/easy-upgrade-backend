@@ -18,7 +18,7 @@ func InitRouter(router *gin.Engine) {
 
 	router.Use(sessions.Sessions("easy-upgrade", conf.GetSessionStore()))
 
-	router.POST("/api/Login", login)
+	router.POST("/api/login", login)
 	router.POST("/api/logout", logoutUser)
 	router.POST("/api/user/register", registerUser)
 

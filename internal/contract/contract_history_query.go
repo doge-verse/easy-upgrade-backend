@@ -6,13 +6,13 @@ import (
 
 // CHQuery .
 type CHQuery struct {
-	ContractAddr string
+	ContractID uint
 }
 
 func (c CHQuery) where() func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		if c.ContractAddr != "" {
-			db = db.Where("contract_addr = ?", c.ContractAddr)
+		if c.ContractID > 0 {
+			db = db.Where("contract_id = ?", c.ContractID)
 		}
 		return db
 	}

@@ -60,6 +60,174 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/notifier": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notify"
+                ],
+                "summary": "page query notify event",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "userID",
+                        "name": "userID",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page number",
+                        "name": "pageNum",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page size",
+                        "name": "pageSize",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.respResult"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.PageResult"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/models.Contract"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notify"
+                ],
+                "summary": "create notify event",
+                "parameters": [
+                    {
+                        "description": "add notifier param",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.Contract"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.respResult"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.Contract"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/notifier/history": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notify"
+                ],
+                "summary": "page query update history",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "contract id",
+                        "name": "contractID",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page number",
+                        "name": "pageNum",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page size",
+                        "name": "pageSize",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.respResult"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.Contract"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -78,7 +246,7 @@ const docTemplate = `{
         "models.Contract": {
             "type": "object",
             "properties": {
-                "contractAddr": {
+                "address": {
                     "type": "string"
                 },
                 "contractHistoryArr": {
@@ -86,9 +254,6 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/models.ContractHistory"
                     }
-                },
-                "contractName": {
-                    "type": "string"
                 },
                 "createdAt": {
                     "type": "integer"
@@ -101,6 +266,9 @@ const docTemplate = `{
                 },
                 "lastUpdate": {
                     "type": "integer"
+                },
+                "name": {
+                    "type": "string"
                 },
                 "network": {
                     "type": "integer"
@@ -116,7 +284,7 @@ const docTemplate = `{
         "models.ContractHistory": {
             "type": "object",
             "properties": {
-                "contractID": {
+                "contractId": {
                     "type": "integer"
                 },
                 "createdAt": {
@@ -177,6 +345,23 @@ const docTemplate = `{
                 }
             }
         },
+        "request.Contract": {
+            "type": "object",
+            "properties": {
+                "contractAddr": {
+                    "type": "string"
+                },
+                "contractName": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "network": {
+                    "type": "integer"
+                }
+            }
+        },
         "request.Login": {
             "type": "object",
             "properties": {
@@ -188,6 +373,21 @@ const docTemplate = `{
                 },
                 "signature": {
                     "type": "string"
+                }
+            }
+        },
+        "response.PageResult": {
+            "type": "object",
+            "properties": {
+                "list": {},
+                "pageNum": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         }

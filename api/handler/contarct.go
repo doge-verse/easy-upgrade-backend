@@ -9,10 +9,19 @@ import (
 	"github.com/doge-verse/easy-upgrade-backend/models"
 	"github.com/doge-verse/easy-upgrade-backend/util"
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/copier"
 )
 
+// addContract .
+// @Tags notify
+// @Summary create notify event
+// @accept application/json
+// @Produce application/json
+// @Param data body request.Contract true "add notifier param"
+// @Success 200 {object} respResult{data=models.Contract}
+// @Router /notifier [post]
 func addContract(c *gin.Context) {
-	param := models.Contract{}
+	param := request.Contract{}
 	if err := c.ShouldBind(&param); err != nil {
 		fail(c, err)
 		return
@@ -21,7 +30,11 @@ func addContract(c *gin.Context) {
 		fail(c, fmt.Errorf("address wrong"))
 		return
 	}
-	result, err := contract.Repo.AddContract(&param)
+	param.UserID = getUserID(c)
+	var contractEntity models.Contract
+	_ = copier.Copy(&contractEntity, &param)
+
+	result, err := contract.Repo.AddContract(&contractEntity)
 	if err != nil {
 		fail(c, err)
 		return
@@ -31,6 +44,16 @@ func addContract(c *gin.Context) {
 	})
 }
 
+// getUserContract .
+// @Tags notify
+// @Summary page query notify event
+// @accept application/json
+// @Produce application/json
+// @Param userID query int true "userID"
+// @Param pageNum query int false "page number"
+// @Param pageSize query int false "page size"
+// @Success 200 {object} respResult{data=response.PageResult{list=[]models.Contract}}
+// @Router /notifier [get]
 func getUserContract(c *gin.Context) {
 	userID, _ := util.ParseUint(c.Query("userID"))
 	if userID == 0 {
@@ -56,10 +79,20 @@ func getUserContract(c *gin.Context) {
 	})
 }
 
+// getContractHistory .
+// @Tags notify
+// @Summary page query update history
+// @accept application/json
+// @Produce application/json
+// @Param contractID query int true "contract id"
+// @Param pageNum query int false "page number"
+// @Param pageSize query int false "page size"
+// @Success 200 {object} respResult{data=models.Contract}
+// @Router /notifier/history [get]
 func getContractHistory(c *gin.Context) {
-	addr := c.Query("addr")
-	if addr == "" {
-		fail(c, fmt.Errorf("the addr can not be empty"))
+	contractID, _ := util.ParseUint(c.Query("contractID"))
+	if contractID == 0 {
+		fail(c, fmt.Errorf("the contract id can not be empty"))
 		return
 	}
 	pageInfo := request.PageInfo{
@@ -67,7 +100,7 @@ func getContractHistory(c *gin.Context) {
 		PageSize: models.DefaultPageSize(c.Query("pageSize")),
 	}
 
-	records, total, err := contract.Repo.PageContractHistory(addr, pageInfo)
+	records, total, err := contract.Repo.PageContractHistory(contractID, pageInfo)
 	if err != nil {
 		fail(c, err)
 		return
