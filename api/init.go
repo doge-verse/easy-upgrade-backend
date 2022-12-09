@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/doge-verse/easy-upgrade-backend/api/handler"
+	"github.com/doge-verse/easy-upgrade-backend/internal/blockchain"
 	"github.com/doge-verse/easy-upgrade-backend/internal/conf"
 	"github.com/doge-verse/easy-upgrade-backend/internal/contract"
 	"github.com/doge-verse/easy-upgrade-backend/internal/sql"
@@ -14,12 +15,12 @@ import (
 
 // Init .
 func Init() {
-
 	conf.Init()
 	sql.Init()
 
 	user.Init()
 	contract.Init()
+	blockchain.Init()
 
 	gin.SetMode(conf.GetGin().Mode)
 	r := gin.Default()

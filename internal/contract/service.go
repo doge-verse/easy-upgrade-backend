@@ -8,37 +8,38 @@ import (
 	"gorm.io/gorm"
 )
 
-type sqlRepo struct {
+type service struct {
 	db *gorm.DB
 }
 
 // AddContract .
-func (repo sqlRepo) AddContract(contract *models.Contract) (*models.Contract, error) {
+func (repo service) AddContract(contract *models.Contract) (*models.Contract, error) {
 	if err := repo.db.
 		Model(&models.Contract{}).
 		Create(contract).Error; err != nil {
 		return nil, err
 	}
 	go func() {
+		// TODO: add proxy contract admin addr
 		historyList, err := blockchain.GetOwnershipTransferredEvent(contract.Address, contract.Network)
 		if err == nil && len(historyList) > 0 {
-		}
-		for k, v := range historyList {
-			historyList[k].ContractID = contract.ID
-			if v.UpdateTime > contract.LastUpdate {
-				contract.LastUpdate = v.UpdateTime
+			for k, v := range historyList {
+				historyList[k].ContractID = contract.ID
+				if v.UpdateTime > contract.LastUpdate {
+					contract.LastUpdate = v.UpdateTime
+				}
 			}
+			// insert contract history
+			repo.db.Model(&models.ContractHistory{}).CreateInBatches(historyList, len(historyList))
+			// update contract newest update time
+			repo.db.Model(&models.Contract{}).Updates(contract)
 		}
-		// insert contract history
-		repo.db.Model(&models.ContractHistory{}).CreateInBatches(historyList, len(historyList))
-		// update contract newest update time
-		repo.db.Model(&models.Contract{}).Updates(contract)
 	}()
 	return contract, nil
 }
 
 // PageUserContractArr .
-func (repo sqlRepo) PageUserContractArr(userID uint, pageInfo request.PageInfo) ([]models.Contract, int64, error) {
+func (repo service) PageUserContractArr(userID uint, pageInfo request.PageInfo) ([]models.Contract, int64, error) {
 	var contractArr []models.Contract
 
 	query := CQuery{
@@ -58,7 +59,7 @@ func (repo sqlRepo) PageUserContractArr(userID uint, pageInfo request.PageInfo) 
 	return contractArr, total, nil
 }
 
-func (repo sqlRepo) PageContractHistory(contractID uint, pageInfo request.PageInfo) ([]models.ContractHistory, int64, error) {
+func (repo service) PageContractHistory(contractID uint, pageInfo request.PageInfo) ([]models.ContractHistory, int64, error) {
 	var records []models.ContractHistory
 	query := CHQuery{
 		ContractID: contractID,

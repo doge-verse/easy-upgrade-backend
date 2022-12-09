@@ -12,6 +12,8 @@ definitions:
     properties:
       address:
         type: string
+      adminAddr:
+        type: string
       contractHistoryArr:
         items:
           $ref: '#/definitions/models.ContractHistory'

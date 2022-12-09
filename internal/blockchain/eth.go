@@ -3,6 +3,7 @@ package blockchain
 import (
 	"context"
 	"errors"
+	"log"
 	"math/big"
 
 	"github.com/doge-verse/easy-upgrade-backend/internal/conf"
@@ -23,19 +24,33 @@ var (
 	ownershipEventTopicLen = 3
 )
 
+var (
+	ethClient     *ethclient.Client
+	polygonClient *ethclient.Client
+)
+
+func Init() {
+	var err error
+	// create client
+	ethClient, err = ethclient.Dial(conf.GetRPC().EthMainnt)
+	if err != nil {
+		log.Fatalln(err)
+		return
+	}
+	polygonClient, err = ethclient.Dial(conf.GetRPC().PolygoMainnet)
+	if err != nil {
+		log.Fatalln(err)
+		return
+	}
+}
+
 func GetOwnershipTransferredEvent(addr string, network uint) ([]models.ContractHistory, error) {
-	var rpcURL string
+	var client *ethclient.Client
 	switch network {
 	case EthMainnet:
-		rpcURL = conf.GetRPC().EthMainnt
+		client = ethClient
 	case PolygonMainnet:
-		rpcURL = conf.GetRPC().PolygoMainnet
-	}
-
-	// create client
-	client, err := ethclient.Dial(rpcURL)
-	if err != nil {
-		return nil, err
+		client = polygonClient
 	}
 
 	number, err := client.BlockNumber(context.Background())
@@ -85,4 +100,33 @@ func GetOwnershipTransferredEvent(addr string, network uint) ([]models.ContractH
 		}
 	}
 	return results, errors.New("not found")
+}
+
+func GetAdminAddr(addr string, network uint) (string, error) {
+	var client *ethclient.Client
+	switch network {
+	case EthMainnet:
+		client = ethClient
+	case PolygonMainnet:
+		client = polygonClient
+	}
+
+	// 获取代理合约地址
+	contractAddr := common.HexToAddress(addr)
+
+	number, err := client.BlockNumber(context.Background())
+	if err != nil {
+		return "", err
+	}
+
+	// 调用合约的查询函数，获取管理员地址
+	admin, err := client.CallContract(context.Background(), ethereum.CallMsg{
+		To:   &contractAddr,
+		Data: []byte{},
+	}, big.NewInt(int64(number)))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return common.BytesToAddress(admin).String(), nil
 }

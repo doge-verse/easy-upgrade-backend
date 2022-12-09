@@ -249,6 +249,9 @@ const docTemplate = `{
                 "address": {
                     "type": "string"
                 },
+                "adminAddr": {
+                    "type": "string"
+                },
                 "contractHistoryArr": {
                     "type": "array",
                     "items": {
