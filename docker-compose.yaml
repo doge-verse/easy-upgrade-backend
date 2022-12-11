@@ -1,0 +1,11 @@
+version: '3.1'
+services:
+
+  easy-upgrade-backend:
+    image: easy-upgrade-backend-image
+    volumes:
+      - ./config.yaml:/var/config/config.yaml
+      # - /etc/localtime:/etc/localtime
+    ports:
+      - "8080:8080"
+
