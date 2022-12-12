@@ -9,7 +9,7 @@ import (
 // Page PageSize Number of data items per page
 const (
 	PageNum  = 1
-	PageSize = 12
+	PageSize = 20
 )
 
 func DefaultPageNum(pageNum interface{}) uint {

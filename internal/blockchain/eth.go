@@ -6,9 +6,11 @@ import (
 	"log"
 	"math/big"
 
+	"github.com/doge-verse/easy-upgrade-backend/internal/blockchain/abi"
 	"github.com/doge-verse/easy-upgrade-backend/internal/conf"
 	"github.com/doge-verse/easy-upgrade-backend/models"
 	"github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -100,4 +102,28 @@ func GetOwnershipTransferredEvent(addr string, network uint) ([]models.ContractH
 		}
 	}
 	return results, errors.New("not found")
+}
+
+func GetProxyOwner(addr string, network uint) (string, error) {
+	var client *ethclient.Client
+	switch network {
+	case EthMainnet:
+		client = ethClient
+	case PolygonMainnet:
+		client = polygonClient
+	}
+
+	contractAddr := common.HexToAddress(addr)
+
+	instance, err := abi.NewProxyAdmin(contractAddr, client)
+	if err != nil {
+		return "", err
+	}
+
+	owner, err := instance.Owner(&bind.CallOpts{})
+	if err != nil {
+		return "", err
+	}
+
+	return owner.String(), nil
 }

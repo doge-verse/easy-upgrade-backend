@@ -30,8 +30,8 @@ func addContract(c *gin.Context) {
 		fail(c, fmt.Errorf("address wrong"))
 		return
 	}
-	param.UserID = getUserID(c)
 	// FIXME:
+	// param.UserID = getUserID(c)
 	param.UserID = 1
 	var contractEntity models.Contract
 	_ = copier.Copy(&contractEntity, &param)
@@ -56,9 +56,9 @@ func addContract(c *gin.Context) {
 // @Success 200 {object} respResult{data=response.PageResult{list=[]models.Contract}}
 // @Router /notifier [get]
 func getUserContract(c *gin.Context) {
-	userID := getUserID(c)
 	// FIXME:
-	userID = 1
+	// userID := getUserID(c)
+	var userID uint = 1
 	pageInfo := request.PageInfo{
 		PageNum:  models.DefaultPageNum(c.Query("pageNum")),
 		PageSize: models.DefaultPageSize(c.Query("pageSize")),

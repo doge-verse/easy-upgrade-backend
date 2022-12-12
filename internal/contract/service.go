@@ -14,12 +14,16 @@ type service struct {
 
 // AddContract .
 func (repo service) AddContract(contract *models.Contract) (*models.Contract, error) {
+	ownerAddr, err := blockchain.GetProxyOwner(contract.ProxyAddress, contract.Network)
+	if err != nil {
+		return nil, err
+	}
+	contract.ProxyOwner = ownerAddr
 	if err := repo.db.
 		Model(&models.Contract{}).
 		Create(contract).Error; err != nil {
 		return nil, err
 	}
-	// TODO: get proxy contract owner
 	go func() {
 		historyList, err := blockchain.GetOwnershipTransferredEvent(contract.ProxyAddress, contract.Network)
 		if err == nil && len(historyList) > 0 {
