@@ -7,6 +7,7 @@ import (
 	"github.com/doge-verse/easy-upgrade-backend/api/middleware"
 	"github.com/doge-verse/easy-upgrade-backend/api/request"
 	"github.com/doge-verse/easy-upgrade-backend/api/response"
+	"github.com/doge-verse/easy-upgrade-backend/internal/blockchain"
 	"github.com/doge-verse/easy-upgrade-backend/internal/shared"
 	"github.com/doge-verse/easy-upgrade-backend/internal/user"
 	"github.com/doge-verse/easy-upgrade-backend/models"
@@ -93,10 +94,10 @@ func login(c *gin.Context) {
 		response.Fail(c, fmt.Errorf("param error"))
 		return
 	}
-	// if !blockchain.CheckAddr(param.Address, param.Signature, param.SignData) {
-	// 	response.Fail(c, fmt.Errorf("signature fail"))
-	// 	return
-	// }
+	if !blockchain.CheckAddr(param.Address, param.Signature, param.SignData) {
+		response.Fail(c, fmt.Errorf("signature fail"))
+		return
+	}
 	userInfo, err := user.Repo.GetUserByQuery(user.Query{
 		Address: param.Address,
 	})
