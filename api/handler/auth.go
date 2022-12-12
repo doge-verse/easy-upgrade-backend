@@ -7,12 +7,9 @@ import (
 	"github.com/doge-verse/easy-upgrade-backend/api/middleware"
 	"github.com/doge-verse/easy-upgrade-backend/api/request"
 	"github.com/doge-verse/easy-upgrade-backend/api/response"
-	"github.com/doge-verse/easy-upgrade-backend/internal/blockchain"
 	"github.com/doge-verse/easy-upgrade-backend/internal/shared"
 	"github.com/doge-verse/easy-upgrade-backend/internal/user"
 	"github.com/doge-verse/easy-upgrade-backend/models"
-	"github.com/spf13/cast"
-
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
@@ -88,7 +85,7 @@ func currentLoginUser(c *gin.Context) {
 // @accept application/json
 // @Produce application/json
 // @Param data body request.Login true "login param"
-// @Success 200 {object} response.RespResult{data=models.User}
+// @Success 200 {object} response.RespResult{data=response.UserInfo}
 // @Router /login [post]
 func login(c *gin.Context) {
 	var param request.Login
@@ -96,10 +93,10 @@ func login(c *gin.Context) {
 		response.Fail(c, fmt.Errorf("param error"))
 		return
 	}
-	if !blockchain.CheckAddr(param.Address, param.Signature, param.SignData) {
-		response.Fail(c, fmt.Errorf("signature fail"))
-		return
-	}
+	// if !blockchain.CheckAddr(param.Address, param.Signature, param.SignData) {
+	// 	response.Fail(c, fmt.Errorf("signature fail"))
+	// 	return
+	// }
 	userInfo, err := user.Repo.GetUserByQuery(user.Query{
 		Address: param.Address,
 	})
@@ -120,7 +117,10 @@ func login(c *gin.Context) {
 	}
 	response.Success(c, &response.RespResult{
 		Data: response.UserInfo{
-			User:      *userInfo,
+			ID:        userInfo.ID,
+			Name:      userInfo.Name,
+			Address:   userInfo.Address,
+			Email:     userInfo.Email,
 			Token:     tokenStr,
 			ExpiresAt: expiresAt,
 		},
@@ -141,5 +141,6 @@ func logoutUser(c *gin.Context) {
 }
 
 func getUserID(c *gin.Context) uint {
-	return cast.ToUint(sessions.Default(c).Get("userID"))
+	claims, _ := c.Get("claims")
+	return claims.(request.CustomClaims).UserID
 }

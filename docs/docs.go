@@ -51,7 +51,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/models.User"
+                                            "$ref": "#/definitions/response.UserInfo"
                                         }
                                     }
                                 }
@@ -254,6 +254,50 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/user/email": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "update user email",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header"
+                    },
+                    {
+                        "description": "update user email",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateEmail"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.RespResult"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -335,35 +379,6 @@ const docTemplate = `{
                 }
             }
         },
-        "models.User": {
-            "type": "object",
-            "properties": {
-                "address": {
-                    "type": "string"
-                },
-                "contractArr": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Contract"
-                    }
-                },
-                "createdAt": {
-                    "type": "integer"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "integer"
-                }
-            }
-        },
         "request.Contract": {
             "type": "object",
             "properties": {
@@ -396,6 +411,14 @@ const docTemplate = `{
                 }
             }
         },
+        "request.UpdateEmail": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                }
+            }
+        },
         "response.PageResult": {
             "type": "object",
             "properties": {
@@ -419,6 +442,29 @@ const docTemplate = `{
                 },
                 "data": {},
                 "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.UserInfo": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "expiresAt": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "token": {
                     "type": "string"
                 }
             }
