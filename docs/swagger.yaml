@@ -143,11 +143,6 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: userID
-        in: query
-        name: userID
-        required: true
-        type: integer
       - description: page number
         in: query
         name: pageNum

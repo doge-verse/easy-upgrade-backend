@@ -76,13 +76,6 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "userID",
-                        "name": "userID",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
                         "description": "page number",
                         "name": "pageNum",
                         "in": "query"

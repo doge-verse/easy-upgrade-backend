@@ -31,6 +31,8 @@ func addContract(c *gin.Context) {
 		return
 	}
 	param.UserID = getUserID(c)
+	// FIXME:
+	param.UserID = 1
 	var contractEntity models.Contract
 	_ = copier.Copy(&contractEntity, &param)
 
@@ -49,17 +51,14 @@ func addContract(c *gin.Context) {
 // @Summary page query notify event
 // @accept application/json
 // @Produce application/json
-// @Param userID query int true "userID"
 // @Param pageNum query int false "page number"
 // @Param pageSize query int false "page size"
 // @Success 200 {object} respResult{data=response.PageResult{list=[]models.Contract}}
 // @Router /notifier [get]
 func getUserContract(c *gin.Context) {
-	userID, _ := util.ParseUint(c.Query("userID"))
-	if userID == 0 {
-		fail(c, fmt.Errorf("have to get userID"))
-		return
-	}
+	userID := getUserID(c)
+	// FIXME:
+	userID = 1
 	pageInfo := request.PageInfo{
 		PageNum:  models.DefaultPageNum(c.Query("pageNum")),
 		PageSize: models.DefaultPageSize(c.Query("pageSize")),

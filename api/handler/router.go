@@ -26,7 +26,7 @@ func InitRouter(router *gin.Engine) {
 }
 
 func initNeedAuthRouter(r *gin.Engine) {
-	r.Use(auth)
+	// r.Use(auth)
 	r.GET("/api/currentUser", currentUser)
 
 	userGroup := r.Group("/api/user")
