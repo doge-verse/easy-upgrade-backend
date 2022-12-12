@@ -35,6 +35,7 @@ func addContract(c *gin.Context) {
 	param.UserID = getUserID(c)
 	var contractEntity models.Contract
 	_ = copier.Copy(&contractEntity, &param)
+	contractEntity.Name = param.ContractName
 
 	result, err := contract.Repo.AddContract(&contractEntity)
 	if err != nil {
