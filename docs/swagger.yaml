@@ -246,7 +246,14 @@ paths:
             - $ref: '#/definitions/response.RespResult'
             - properties:
                 data:
-                  $ref: '#/definitions/models.Contract'
+                  allOf:
+                  - $ref: '#/definitions/response.PageResult'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/models.ContractHistory'
+                        type: array
+                    type: object
               type: object
       security:
       - ApiKeyAuth: []

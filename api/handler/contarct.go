@@ -89,7 +89,7 @@ func getUserContract(c *gin.Context) {
 // @Param contractID query int true "contract id"
 // @Param pageNum query int false "page number"
 // @Param pageSize query int false "page size"
-// @Success 200 {object} response.RespResult{data=models.Contract}
+// @Success 200 {object} response.RespResult{data=response.PageResult{list=[]models.ContractHistory}}
 // @Router /notifier/history [get]
 func getContractHistory(c *gin.Context) {
 	contractID, _ := util.ParseUint(c.Query("contractID"))
