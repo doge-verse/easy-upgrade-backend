@@ -10,6 +10,5 @@ RUN apk --no-cache add ca-certificates
 WORKDIR /root/
 COPY --from=golang-builder /go/src/github.com/doge-verse/easy-upgrade-backend/app .
 COPY --from=golang-builder /go/src/github.com/doge-verse/easy-upgrade-backend/docs ./docs
-COPY --from=golang-builder /go/src/github.com/doge-verse/easy-upgrade-backend/template ./template
 EXPOSE 8080
 ENTRYPOINT ["./app"]
