@@ -142,5 +142,5 @@ func logoutUser(c *gin.Context) {
 
 func getUserID(c *gin.Context) uint {
 	claims, _ := c.Get("claims")
-	return claims.(request.CustomClaims).UserID
+	return claims.(*request.CustomClaims).UserID
 }
