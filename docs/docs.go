@@ -347,6 +347,9 @@ const docTemplate = `{
                 "contractAddr": {
                     "type": "string"
                 },
+                "contractAdmin": {
+                    "type": "string"
+                },
                 "contractName": {
                     "type": "string"
                 },

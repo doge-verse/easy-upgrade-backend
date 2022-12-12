@@ -81,6 +81,8 @@ definitions:
     properties:
       contractAddr:
         type: string
+      contractAdmin:
+        type: string
       contractName:
         type: string
       email:

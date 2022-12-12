@@ -101,32 +101,3 @@ func GetOwnershipTransferredEvent(addr string, network uint) ([]models.ContractH
 	}
 	return results, errors.New("not found")
 }
-
-func GetAdminAddr(addr string, network uint) (string, error) {
-	var client *ethclient.Client
-	switch network {
-	case EthMainnet:
-		client = ethClient
-	case PolygonMainnet:
-		client = polygonClient
-	}
-
-	// 获取代理合约地址
-	contractAddr := common.HexToAddress(addr)
-
-	number, err := client.BlockNumber(context.Background())
-	if err != nil {
-		return "", err
-	}
-
-	// 调用合约的查询函数，获取管理员地址
-	admin, err := client.CallContract(context.Background(), ethereum.CallMsg{
-		To:   &contractAddr,
-		Data: []byte{},
-	}, big.NewInt(int64(number)))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return common.BytesToAddress(admin).String(), nil
-}

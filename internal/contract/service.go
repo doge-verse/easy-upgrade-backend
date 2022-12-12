@@ -20,7 +20,6 @@ func (repo service) AddContract(contract *models.Contract) (*models.Contract, er
 		return nil, err
 	}
 	go func() {
-		// TODO: add proxy contract admin addr
 		historyList, err := blockchain.GetOwnershipTransferredEvent(contract.Address, contract.Network)
 		if err == nil && len(historyList) > 0 {
 			for k, v := range historyList {
