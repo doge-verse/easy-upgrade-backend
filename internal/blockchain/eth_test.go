@@ -1,9 +1,12 @@
 package blockchain
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func Test_demo(t *testing.T) {
-	CheckAddr("",
+	fmt.Println(CheckAddr("",
 		"",
-		"")
+		""))
 }
