@@ -1,4 +1,4 @@
-FROM golang:stretch as golang-builder
+FROM golang:1.18 as golang-builder
 WORKDIR /go/src/github.com/doge-verse/easy-upgrade-backend
 COPY . .
 COPY main.go ./main.go

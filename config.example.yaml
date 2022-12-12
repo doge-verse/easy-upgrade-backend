@@ -22,5 +22,6 @@ session:
   expires-time: 604800
 
 rpc:
-  eth-mainnet: 
+  eth-mainnet:
   polygo_mainnet:
+  goerli_testnet:
