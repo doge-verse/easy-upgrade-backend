@@ -1,10 +1,9 @@
 package request
 
 type Contract struct {
-	UserID        uint `json:"-"`
-	ContractAddr  string
-	ContractAdmin string
-	ContractName  string
-	Email         string
-	Network       uint
+	UserID       uint   `json:"-"`
+	ProxyAddress string `json:"proxyAddress"`
+	ContractName string `json:"contractName"`
+	Email        string `json:"email"`
+	Network      uint   `json:"network"` // chain id
 }
