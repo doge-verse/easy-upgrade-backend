@@ -40,7 +40,7 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.respResult"
+                                    "$ref": "#/definitions/response.RespResult"
                                 },
                                 {
                                     "type": "object",
@@ -58,6 +58,11 @@
         },
         "/notifier": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -69,6 +74,12 @@
                 ],
                 "summary": "page query notify event",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header"
+                    },
                     {
                         "type": "integer",
                         "description": "page number",
@@ -88,7 +99,7 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.respResult"
+                                    "$ref": "#/definitions/response.RespResult"
                                 },
                                 {
                                     "type": "object",
@@ -119,6 +130,11 @@
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -130,6 +146,12 @@
                 ],
                 "summary": "create notify event",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header"
+                    },
                     {
                         "description": "add notifier param",
                         "name": "data",
@@ -146,7 +168,7 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.respResult"
+                                    "$ref": "#/definitions/response.RespResult"
                                 },
                                 {
                                     "type": "object",
@@ -164,6 +186,11 @@
         },
         "/notifier/history": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -175,6 +202,12 @@
                 ],
                 "summary": "page query update history",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header"
+                    },
                     {
                         "type": "integer",
                         "description": "contract id",
@@ -201,7 +234,7 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.respResult"
+                                    "$ref": "#/definitions/response.RespResult"
                                 },
                                 {
                                     "type": "object",
@@ -219,18 +252,6 @@
         }
     },
     "definitions": {
-        "handler.respResult": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer"
-                },
-                "data": {},
-                "msg": {
-                    "type": "string"
-                }
-            }
-        },
         "models.Contract": {
             "type": "object",
             "properties": {
@@ -382,6 +403,18 @@
                 },
                 "total": {
                     "type": "integer"
+                }
+            }
+        },
+        "response.RespResult": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {},
+                "msg": {
+                    "type": "string"
                 }
             }
         }

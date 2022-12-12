@@ -1,13 +1,5 @@
 basePath: /api
 definitions:
-  handler.respResult:
-    properties:
-      code:
-        type: integer
-      data: {}
-      msg:
-        type: string
-    type: object
   models.Contract:
     properties:
       contractHistoryArr:
@@ -110,6 +102,14 @@ definitions:
       total:
         type: integer
     type: object
+  response.RespResult:
+    properties:
+      code:
+        type: integer
+      data: {}
+      msg:
+        type: string
+    type: object
 info:
   contact: {}
   title: easy-upgrade-backend
@@ -133,7 +133,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/handler.respResult'
+            - $ref: '#/definitions/response.RespResult'
             - properties:
                 data:
                   $ref: '#/definitions/models.User'
@@ -146,6 +146,10 @@ paths:
       consumes:
       - application/json
       parameters:
+      - description: token
+        in: header
+        name: Authorization
+        type: string
       - description: page number
         in: query
         name: pageNum
@@ -161,7 +165,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/handler.respResult'
+            - $ref: '#/definitions/response.RespResult'
             - properties:
                 data:
                   allOf:
@@ -173,6 +177,8 @@ paths:
                         type: array
                     type: object
               type: object
+      security:
+      - ApiKeyAuth: []
       summary: page query notify event
       tags:
       - notify
@@ -180,6 +186,10 @@ paths:
       consumes:
       - application/json
       parameters:
+      - description: token
+        in: header
+        name: Authorization
+        type: string
       - description: add notifier param
         in: body
         name: data
@@ -193,11 +203,13 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/handler.respResult'
+            - $ref: '#/definitions/response.RespResult'
             - properties:
                 data:
                   $ref: '#/definitions/models.Contract'
               type: object
+      security:
+      - ApiKeyAuth: []
       summary: create notify event
       tags:
       - notify
@@ -206,6 +218,10 @@ paths:
       consumes:
       - application/json
       parameters:
+      - description: token
+        in: header
+        name: Authorization
+        type: string
       - description: contract id
         in: query
         name: contractID
@@ -226,11 +242,13 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/handler.respResult'
+            - $ref: '#/definitions/response.RespResult'
             - properties:
                 data:
                   $ref: '#/definitions/models.Contract'
               type: object
+      security:
+      - ApiKeyAuth: []
       summary: page query update history
       tags:
       - notify

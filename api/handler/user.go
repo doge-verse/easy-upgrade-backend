@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"github.com/doge-verse/easy-upgrade-backend/api/response"
 	"github.com/doge-verse/easy-upgrade-backend/internal/user"
 	"github.com/doge-verse/easy-upgrade-backend/models"
 	"github.com/doge-verse/easy-upgrade-backend/util"
@@ -13,7 +14,7 @@ func getUserByQuery(c *gin.Context) {
 	userID, err := util.ParseUint(c.Query("userID"))
 	address := c.Query("address")
 	if err != nil {
-		fail(c, err)
+		response.Fail(c, err)
 		return
 	}
 	query := user.Query{
@@ -22,10 +23,10 @@ func getUserByQuery(c *gin.Context) {
 	}
 	userInfo, err := user.Repo.GetUserByQuery(query)
 	if err != nil {
-		fail(c, err)
+		response.Fail(c, err)
 		return
 	}
-	success(c, &respResult{
+	response.Success(c, &response.RespResult{
 		Data: userInfo,
 	})
 }
@@ -36,14 +37,14 @@ func updateEmail(c *gin.Context) {
 		UserID uint   `json:"userID"`
 	}{}
 	if err := c.ShouldBindQuery(&param); err != nil {
-		fail(c, err)
+		response.Fail(c, err)
 		return
 	}
 	if err := user.Repo.UpdateEmail(param.UserID, param.Email); err != nil {
-		fail(c, err)
+		response.Fail(c, err)
 		return
 	}
-	success(c, &respResult{
+	response.Success(c, &response.RespResult{
 		Data: nil,
 	})
 }
@@ -52,15 +53,15 @@ func updateEmail(c *gin.Context) {
 func registerUser(c *gin.Context) {
 	param := models.User{}
 	if err := c.ShouldBindQuery(&param); err != nil {
-		fail(c, err)
+		response.Fail(c, err)
 		return
 	}
 	userInfo, err := user.Repo.UserRegister(&param)
 	if err != nil {
-		fail(c, err)
+		response.Fail(c, err)
 		return
 	}
-	success(c, &respResult{
+	response.Success(c, &response.RespResult{
 		Data: userInfo,
 	})
 }

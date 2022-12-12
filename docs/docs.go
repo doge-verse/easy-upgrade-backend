@@ -45,7 +45,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.respResult"
+                                    "$ref": "#/definitions/response.RespResult"
                                 },
                                 {
                                     "type": "object",
@@ -63,6 +63,11 @@ const docTemplate = `{
         },
         "/notifier": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -74,6 +79,12 @@ const docTemplate = `{
                 ],
                 "summary": "page query notify event",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header"
+                    },
                     {
                         "type": "integer",
                         "description": "page number",
@@ -93,7 +104,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.respResult"
+                                    "$ref": "#/definitions/response.RespResult"
                                 },
                                 {
                                     "type": "object",
@@ -124,6 +135,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -135,6 +151,12 @@ const docTemplate = `{
                 ],
                 "summary": "create notify event",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header"
+                    },
                     {
                         "description": "add notifier param",
                         "name": "data",
@@ -151,7 +173,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.respResult"
+                                    "$ref": "#/definitions/response.RespResult"
                                 },
                                 {
                                     "type": "object",
@@ -169,6 +191,11 @@ const docTemplate = `{
         },
         "/notifier/history": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -180,6 +207,12 @@ const docTemplate = `{
                 ],
                 "summary": "page query update history",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header"
+                    },
                     {
                         "type": "integer",
                         "description": "contract id",
@@ -206,7 +239,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.respResult"
+                                    "$ref": "#/definitions/response.RespResult"
                                 },
                                 {
                                     "type": "object",
@@ -224,18 +257,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "handler.respResult": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer"
-                },
-                "data": {},
-                "msg": {
-                    "type": "string"
-                }
-            }
-        },
         "models.Contract": {
             "type": "object",
             "properties": {
@@ -387,6 +408,18 @@ const docTemplate = `{
                 },
                 "total": {
                     "type": "integer"
+                }
+            }
+        },
+        "response.RespResult": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {},
+                "msg": {
+                    "type": "string"
                 }
             }
         }

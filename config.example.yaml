@@ -17,7 +17,9 @@ session:
   network: tcp
   address:
   password:
+  db: 10
   keyPairs:
+  expires-time: 604800
 
 rpc:
   eth-mainnet: 

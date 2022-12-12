@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/doge-verse/easy-upgrade-backend/api/request"
-	response "github.com/doge-verse/easy-upgrade-backend/api/respone"
+	"github.com/doge-verse/easy-upgrade-backend/api/response"
 	"github.com/doge-verse/easy-upgrade-backend/internal/contract"
 	"github.com/doge-verse/easy-upgrade-backend/models"
 	"github.com/doge-verse/easy-upgrade-backend/util"
@@ -17,17 +17,19 @@ import (
 // @Summary create notify event
 // @accept application/json
 // @Produce application/json
+// @Security ApiKeyAuth
+// @Param Authorization header string false "token"
 // @Param data body request.Contract true "add notifier param"
-// @Success 200 {object} respResult{data=models.Contract}
+// @Success 200 {object} response.RespResult{data=models.Contract}
 // @Router /notifier [post]
 func addContract(c *gin.Context) {
 	param := request.Contract{}
 	if err := c.ShouldBind(&param); err != nil {
-		fail(c, err)
+		response.Fail(c, err)
 		return
 	}
 	if len(param.ProxyAddress) < 32 {
-		fail(c, fmt.Errorf("address wrong"))
+		response.Fail(c, fmt.Errorf("address wrong"))
 		return
 	}
 	// FIXME:
@@ -38,10 +40,10 @@ func addContract(c *gin.Context) {
 
 	result, err := contract.Repo.AddContract(&contractEntity)
 	if err != nil {
-		fail(c, err)
+		response.Fail(c, err)
 		return
 	}
-	success(c, &respResult{
+	response.Success(c, &response.RespResult{
 		Data: result,
 	})
 }
@@ -51,9 +53,11 @@ func addContract(c *gin.Context) {
 // @Summary page query notify event
 // @accept application/json
 // @Produce application/json
+// @Security ApiKeyAuth
+// @Param Authorization header string false "token"
 // @Param pageNum query int false "page number"
 // @Param pageSize query int false "page size"
-// @Success 200 {object} respResult{data=response.PageResult{list=[]models.Contract}}
+// @Success 200 {object} response.RespResult{data=response.PageResult{list=[]models.Contract}}
 // @Router /notifier [get]
 func getUserContract(c *gin.Context) {
 	// FIXME:
@@ -65,10 +69,10 @@ func getUserContract(c *gin.Context) {
 	}
 	contractArr, total, err := contract.Repo.PageUserContractArr(userID, pageInfo)
 	if err != nil {
-		fail(c, err)
+		response.Fail(c, err)
 		return
 	}
-	success(c, &respResult{
+	response.Success(c, &response.RespResult{
 		Data: response.PageResult{
 			List:     contractArr,
 			Total:    total,
@@ -83,15 +87,17 @@ func getUserContract(c *gin.Context) {
 // @Summary page query update history
 // @accept application/json
 // @Produce application/json
+// @Security ApiKeyAuth
+// @Param Authorization header string false "token"
 // @Param contractID query int true "contract id"
 // @Param pageNum query int false "page number"
 // @Param pageSize query int false "page size"
-// @Success 200 {object} respResult{data=models.Contract}
+// @Success 200 {object} response.RespResult{data=models.Contract}
 // @Router /notifier/history [get]
 func getContractHistory(c *gin.Context) {
 	contractID, _ := util.ParseUint(c.Query("contractID"))
 	if contractID == 0 {
-		fail(c, fmt.Errorf("the contract id can not be empty"))
+		response.Fail(c, fmt.Errorf("the contract id can not be empty"))
 		return
 	}
 	pageInfo := request.PageInfo{
@@ -101,10 +107,10 @@ func getContractHistory(c *gin.Context) {
 
 	records, total, err := contract.Repo.PageContractHistory(contractID, pageInfo)
 	if err != nil {
-		fail(c, err)
+		response.Fail(c, err)
 		return
 	}
-	success(c, &respResult{
+	response.Success(c, &response.RespResult{
 		Data: response.PageResult{
 			List:     records,
 			Total:    total,

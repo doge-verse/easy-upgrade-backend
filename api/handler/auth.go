@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/doge-verse/easy-upgrade-backend/api/middleware"
 	"github.com/doge-verse/easy-upgrade-backend/api/request"
+	"github.com/doge-verse/easy-upgrade-backend/api/response"
 	"github.com/doge-verse/easy-upgrade-backend/internal/blockchain"
 	"github.com/doge-verse/easy-upgrade-backend/internal/shared"
 	"github.com/doge-verse/easy-upgrade-backend/internal/user"
@@ -29,7 +31,7 @@ func auth(c *gin.Context) {
 	userID := getUserIDFromSession(c)
 	userInfo, err := user.Repo.GetUserByQuery(user.Query{UserID: userID})
 	if err != nil || userID == 0 {
-		unLogin(c)
+		response.UnLogin(c)
 		c.Abort()
 		return
 	}
@@ -42,7 +44,7 @@ func auth(c *gin.Context) {
 func currentUser(c *gin.Context) {
 	userInfo, exist := shared.GetUser(c.Request.Context())
 	if !exist {
-		success(c, nil)
+		response.Success(c, nil)
 		return
 	}
 	session := sessions.Default(c)
@@ -50,7 +52,7 @@ func currentUser(c *gin.Context) {
 	if err != nil {
 		log.Println(err)
 	}
-	success(c, &respResult{
+	response.Success(c, &response.RespResult{
 		Data: userInfo,
 	})
 }
@@ -60,7 +62,7 @@ func currentLoginUser(c *gin.Context) {
 	session := sessions.Default(c)
 	t := session.Get("userID")
 	if t == nil {
-		success(c, &respResult{
+		response.Success(c, &response.RespResult{
 			Data: false,
 		})
 		return
@@ -68,14 +70,14 @@ func currentLoginUser(c *gin.Context) {
 	userID := t.(uint)
 	userInfo, err := user.Repo.GetUserByQuery(user.Query{UserID: userID})
 	if userInfo == nil || err != nil {
-		success(c, nil)
+		response.Success(c, nil)
 		return
 	}
 	err = session.Save()
 	if err != nil {
 		log.Println(err)
 	}
-	success(c, &respResult{
+	response.Success(c, &response.RespResult{
 		Data: userInfo,
 	})
 }
@@ -86,16 +88,16 @@ func currentLoginUser(c *gin.Context) {
 // @accept application/json
 // @Produce application/json
 // @Param data body request.Login true "login param"
-// @Success 200 {object} respResult{data=models.User}
+// @Success 200 {object} response.RespResult{data=models.User}
 // @Router /login [post]
 func login(c *gin.Context) {
 	var param request.Login
 	if err := c.ShouldBind(&param); err != nil {
-		fail(c, fmt.Errorf("param error"))
+		response.Fail(c, fmt.Errorf("param error"))
 		return
 	}
 	if !blockchain.CheckAddr(param.Address, param.Signature, param.SignData) {
-		fail(c, fmt.Errorf("signature fail"))
+		response.Fail(c, fmt.Errorf("signature fail"))
 		return
 	}
 	userInfo, err := user.Repo.GetUserByQuery(user.Query{
@@ -107,17 +109,21 @@ func login(c *gin.Context) {
 		}
 		userInfo, err = user.Repo.UserRegister(newUser)
 		if err != nil {
-			fail(c, err)
+			response.Fail(c, err)
 			return
 		}
 	}
-	session := sessions.Default(c)
-	session.Set("userID", userInfo.ID)
-	if err = session.Save(); err != nil {
-		log.Println(err)
+	tokenStr, expiresAt, err := middleware.SignJwt(userInfo.ID)
+	if err != nil {
+		response.Fail(c, err)
+		return
 	}
-	success(c, &respResult{
-		Data: userInfo,
+	response.Success(c, &response.RespResult{
+		Data: response.UserInfo{
+			User:      *userInfo,
+			Token:     tokenStr,
+			ExpiresAt: expiresAt,
+		},
 	})
 }
 
@@ -129,7 +135,7 @@ func logoutUser(c *gin.Context) {
 	if err != nil {
 		log.Println(err)
 	}
-	success(c, &respResult{
+	response.Success(c, &response.RespResult{
 		Data: nil,
 	})
 }

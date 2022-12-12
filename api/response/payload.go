@@ -1,4 +1,4 @@
-package handler
+package response
 
 import (
 	"log"
@@ -15,35 +15,35 @@ const (
 	respNoAuth  = 4 // "NoAuth"
 )
 
-type respResult struct {
+type RespResult struct {
 	Data interface{} `json:"data"`
 	Code int         `json:"code"`
 	Msg  string      `json:"msg"`
 }
 
-func success(c *gin.Context, resp *respResult) {
+func Success(c *gin.Context, resp *RespResult) {
 	resp.Code = respOk
 	resp.Msg = "success"
 
 	c.JSON(http.StatusOK, resp)
 }
 
-func unLogin(c *gin.Context) {
-	c.JSON(http.StatusOK, respResult{
+func UnLogin(c *gin.Context) {
+	c.JSON(http.StatusOK, RespResult{
 		Code: respUnLogin,
-		Msg:  "unLogin",
+		Msg:  "UnLogin",
 	})
 }
 
-// fail
-func fail(c *gin.Context, e error) {
-	// logError(e)
-	c.JSON(http.StatusOK, respResult{
+// Fail .
+func Fail(c *gin.Context, e error) {
+	// LogError(e)
+	c.JSON(http.StatusOK, RespResult{
 		Code: respFail,
 		Msg:  e.Error(),
 	})
 }
 
-func logError(e error) {
+func LogError(e error) {
 	log.Printf("error: 【full】 %+#v ", e)
 }
