@@ -239,12 +239,6 @@ const docTemplate = `{
         "models.Contract": {
             "type": "object",
             "properties": {
-                "address": {
-                    "type": "string"
-                },
-                "adminAddr": {
-                    "type": "string"
-                },
                 "contractHistoryArr": {
                     "type": "array",
                     "items": {
@@ -267,7 +261,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "network": {
+                    "description": "chain id",
                     "type": "integer"
+                },
+                "proxyAddress": {
+                    "type": "string"
+                },
+                "proxyOwner": {
+                    "type": "string"
                 },
                 "updatedAt": {
                     "type": "integer"
@@ -290,6 +291,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "network": {
+                    "description": "chain id",
                     "type": "integer"
                 },
                 "newOwner": {
@@ -344,12 +346,6 @@ const docTemplate = `{
         "request.Contract": {
             "type": "object",
             "properties": {
-                "contractAddr": {
-                    "type": "string"
-                },
-                "contractAdmin": {
-                    "type": "string"
-                },
                 "contractName": {
                     "type": "string"
                 },
@@ -357,7 +353,11 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "network": {
+                    "description": "chain id",
                     "type": "integer"
+                },
+                "proxyAddress": {
+                    "type": "string"
                 }
             }
         },

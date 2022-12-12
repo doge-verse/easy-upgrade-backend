@@ -234,12 +234,6 @@
         "models.Contract": {
             "type": "object",
             "properties": {
-                "address": {
-                    "type": "string"
-                },
-                "adminAddr": {
-                    "type": "string"
-                },
                 "contractHistoryArr": {
                     "type": "array",
                     "items": {
@@ -262,7 +256,14 @@
                     "type": "string"
                 },
                 "network": {
+                    "description": "chain id",
                     "type": "integer"
+                },
+                "proxyAddress": {
+                    "type": "string"
+                },
+                "proxyOwner": {
+                    "type": "string"
                 },
                 "updatedAt": {
                     "type": "integer"
@@ -285,6 +286,7 @@
                     "type": "integer"
                 },
                 "network": {
+                    "description": "chain id",
                     "type": "integer"
                 },
                 "newOwner": {
@@ -339,12 +341,6 @@
         "request.Contract": {
             "type": "object",
             "properties": {
-                "contractAddr": {
-                    "type": "string"
-                },
-                "contractAdmin": {
-                    "type": "string"
-                },
                 "contractName": {
                     "type": "string"
                 },
@@ -352,7 +348,11 @@
                     "type": "string"
                 },
                 "network": {
+                    "description": "chain id",
                     "type": "integer"
+                },
+                "proxyAddress": {
+                    "type": "string"
                 }
             }
         },

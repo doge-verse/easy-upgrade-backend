@@ -26,7 +26,7 @@ func addContract(c *gin.Context) {
 		fail(c, err)
 		return
 	}
-	if len(param.ContractAddr) < 32 {
+	if len(param.ProxyAddress) < 32 {
 		fail(c, fmt.Errorf("address wrong"))
 		return
 	}
