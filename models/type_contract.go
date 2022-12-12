@@ -4,10 +4,10 @@ package models
 type Contract struct {
 	GormModel
 	UserID             uint              `gorm:"NOT NULL" json:"userID"`
-	Address            string            `gorm:"NOT NULL" json:"address"`
-	AdminAddr          string            `gorm:"NOT NULL" json:"adminAddr"`
+	ProxyAddress       string            `gorm:"NOT NULL" json:"proxyAddress"`
+	ProxyOwner         string            `gorm:"NOT NULL" json:"proxyOwner"`
 	Name               string            `json:"name"`
-	Network            uint              `gorm:"NOT NULL" json:"network"`
+	Network            uint              `gorm:"NOT NULL" json:"network"` // chain id
 	LastUpdate         uint64            `json:"lastUpdate"`
 	Email              string            `json:"email"`
 	ContractHistoryArr []ContractHistory `json:"contractHistoryArr,omitempty"`
