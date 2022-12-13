@@ -24,3 +24,7 @@ session:
 rpc:
   eth-mainnet: 
   polygo_mainnet:
+
+email:
+  authCode:
+  from:
