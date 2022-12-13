@@ -38,18 +38,15 @@ func Init() {
 	// create client
 	ethClient, err = ethclient.Dial(conf.GetRPC().EthMainnt)
 	if err != nil {
-		log.Fatalln("EthMainnt Dial err:", err)
-		return
+		log.Fatalln("EthMainnet Dial err:", err)
 	}
 	polygonClient, err = ethclient.Dial(conf.GetRPC().PolygoMainnet)
 	if err != nil {
-		log.Fatalln("PolygoMainnet Dial err:", err)
-		return
+		log.Fatalln("PolygonMainnet Dial err:", err)
 	}
 	goerliClient, err = ethclient.Dial(conf.GetRPC().GoerliTestnet)
 	if err != nil {
-		log.Fatalln("GoerliTestnet Dial err:", err)
-		return
+		log.Fatalln("GoerilTestNet Dial err:", err)
 	}
 }
 
@@ -101,8 +98,7 @@ func GetOwnershipTransferredEvent(addr string, network uint) ([]models.ContractH
 				blockTime = blockInfo.Time()
 			}
 			results = append(results, models.ContractHistory{
-				UpdateBlock:   uint(eventLog.BlockNumber),
-				Network:       network,
+				UpdateBlock:   eventLog.BlockNumber,
 				UpdateTime:    blockTime,
 				UpdateTX:      eventLog.TxHash.Hex(),
 				PreviousOwner: common.HexToAddress(topics[1]).String(),

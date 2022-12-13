@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"math/big"
 	"net/smtp"
 
 	"github.com/doge-verse/easy-upgrade-backend/internal/blockchain"
@@ -46,19 +47,19 @@ func (s subscriber) SubscribeAllContract(contracts []models.Contract) error {
 		case blockchain.EthMainnet:
 			client, err = ethclient.Dial(conf.GetRPC().EthMainnt)
 			if err != nil {
-				log.Fatal("ethclient dial eth mainnet error:", err)
+				log.Fatal("eth client dial eth mainnet error:", err)
 				return err
 			}
 		case blockchain.PolygonMainnet:
 			client, err = ethclient.Dial(conf.GetRPC().PolygoMainnet)
 			if err != nil {
-				log.Fatal("ethclient dial polygon mainnet error:", err)
+				log.Fatal("polygon client dial polygon mainnet error:", err)
 				return err
 			}
 		case blockchain.GoerilTestNet:
 			client, err = ethclient.Dial(conf.GetRPC().GoerliTestnet)
 			if err != nil {
-				log.Fatal("ethclient dial goerli testnet error:", err)
+				log.Fatal("goeril client dial goerli testnet error:", err)
 				return err
 			}
 		}
@@ -77,7 +78,7 @@ func (s subscriber) SubscribeAllContract(contracts []models.Contract) error {
 			log.Fatal("SubscribeFilterLogs error:", err)
 		}
 
-		go func(ethereum.Subscription, chan types.Log) {
+		go func(ethereum.Subscription, chan types.Log, string, *ethclient.Client) {
 			for {
 				select {
 				case err := <-sub.Err():
@@ -85,10 +86,17 @@ func (s subscriber) SubscribeAllContract(contracts []models.Contract) error {
 				case currentLog := <-logs:
 					oldProxyAddress := common.BytesToAddress(currentLog.Data[:32])
 					newProxyAddress := common.BytesToAddress(currentLog.Data[32:])
+					historyInfo := models.ContractHistory{
+						UpdateBlock:   currentLog.BlockNumber,
+						UpdateTX:      currentLog.TxHash.Hex(),
+						PreviousOwner: oldProxyAddress.String(),
+						NewOwner:      newProxyAddress.String(),
+					}
+					s.updateContract(contractAddressStr, historyInfo, client)
 					sendEmail(receiverEmail, oldProxyAddress, newProxyAddress)
 				}
 			}
-		}(sub, logs)
+		}(sub, logs, contractAddressStr, client)
 	}
 	return nil
 }
@@ -109,4 +117,33 @@ func sendEmail(receiverEmail string, oldAdmin common.Address, newAdmin common.Ad
 	} else {
 		log.Println("Send email successfully!")
 	}
+}
+
+// updateContract update the contract lastUpdate time & owner & create history record
+func (s subscriber) updateContract(contractAddress string, historyInfo models.ContractHistory, client *ethclient.Client) {
+	tx := s.db.Begin()
+	var contract models.Contract
+	if err := tx.Model(&models.Contract{}).Where("proxy_address = ?", contractAddress).
+		First(&contract).Error; err != nil {
+		log.Println("The contract is not exist in db:", err)
+		tx.Rollback()
+	}
+	historyInfo.ContractID = contract.ID
+	var blockTime uint64
+	blockInfo, err := client.BlockByNumber(context.Background(), big.NewInt(int64(historyInfo.UpdateBlock)))
+	if err == nil {
+		blockTime = blockInfo.Time()
+	}
+	historyInfo.UpdateTime = blockTime
+	contract.LastUpdate = blockTime
+	contract.ProxyOwner = historyInfo.NewOwner
+	if err = tx.Save(&contract).Error; err != nil {
+		log.Println("The contract update fail:", err)
+		tx.Rollback()
+	}
+	if err = tx.Model(&models.ContractHistory{}).Create(&historyInfo).Error; err != nil {
+		log.Println("The contract update history create fail:", err)
+		tx.Rollback()
+	}
+	tx.Commit()
 }
