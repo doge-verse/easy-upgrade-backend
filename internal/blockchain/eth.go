@@ -17,9 +17,10 @@ import (
 )
 
 const (
-	EthMainnet     uint = 1
-	PolygonMainnet uint = 137
-	GoerilTestNet  uint = 5
+	EthMainnet        uint = 1
+	PolygonMainnet    uint = 137
+	GoerilTestNet     uint = 5
+	FVMWallabyTestnet uint = 31415
 )
 
 var (
@@ -28,9 +29,10 @@ var (
 )
 
 var (
-	ethClient     *ethclient.Client
-	polygonClient *ethclient.Client
-	goerliClient  *ethclient.Client
+	ethClient        *ethclient.Client
+	polygonClient    *ethclient.Client
+	goerliClient     *ethclient.Client
+	fVMWallabyClient *ethclient.Client
 )
 
 func Init() {
@@ -48,6 +50,10 @@ func Init() {
 	if err != nil {
 		log.Fatalln("GoerilTestNet Dial err:", err)
 	}
+	fVMWallabyClient, err = ethclient.Dial(conf.GetRPC().GoerliTestnet)
+	if err != nil {
+		log.Fatalln("GoerilTestNet Dial err:", err)
+	}
 }
 
 func GetOwnershipTransferredEvent(addr string, network uint) ([]models.ContractHistory, error) {
@@ -59,6 +65,8 @@ func GetOwnershipTransferredEvent(addr string, network uint) ([]models.ContractH
 		client = polygonClient
 	case GoerilTestNet:
 		client = goerliClient
+	case FVMWallabyTestnet:
+		client = fVMWallabyClient
 	}
 
 	number, err := client.BlockNumber(context.Background())
@@ -118,6 +126,8 @@ func GetProxyOwner(addr string, network uint) (string, error) {
 		client = polygonClient
 	case GoerilTestNet:
 		client = goerliClient
+	case FVMWallabyTestnet:
+		client = fVMWallabyClient
 	}
 
 	contractAddr := common.HexToAddress(addr)

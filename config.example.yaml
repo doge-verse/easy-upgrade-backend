@@ -25,6 +25,7 @@ rpc:
   eth-mainnet:
   polygo_mainnet:
   goerli_testnet:
+  wallaby_testnet: wss://wallaby.node.glif.io/rpc/v0
 
 email:
   authCode:
