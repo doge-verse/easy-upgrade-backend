@@ -25,3 +25,7 @@ rpc:
   eth-mainnet:
   polygo_mainnet:
   goerli_testnet:
+
+email:
+  authCode:
+  email:

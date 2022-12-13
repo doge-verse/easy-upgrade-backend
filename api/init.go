@@ -9,6 +9,7 @@ import (
 	"github.com/doge-verse/easy-upgrade-backend/internal/conf"
 	"github.com/doge-verse/easy-upgrade-backend/internal/contract"
 	"github.com/doge-verse/easy-upgrade-backend/internal/sql"
+	"github.com/doge-verse/easy-upgrade-backend/internal/subscriber"
 	"github.com/doge-verse/easy-upgrade-backend/internal/user"
 
 	"github.com/gin-gonic/gin"
@@ -23,6 +24,7 @@ func Init() {
 	user.Init()
 	contract.Init()
 	blockchain.Init()
+	subscriber.Init()
 
 	gin.SetMode(conf.GetGin().Mode)
 	r := gin.Default()
