@@ -55,6 +55,12 @@ func (s subscriber) SubscribeAllContract(contracts []models.Contract) error {
 				log.Fatal("ethclient dial polygon mainnet error:", err)
 				return err
 			}
+		case blockchain.GoerilTestNet:
+			client, err = ethclient.Dial(conf.GetRPC().GoerliTestnet)
+			if err != nil {
+				log.Fatal("ethclient dial goerli testnet error:", err)
+				return err
+			}
 		}
 
 		contractAddress := common.HexToAddress(contractAddressStr)
