@@ -16,89 +16,81 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/jordan-wright/email"
-
+	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
-type subscriber struct {
-	db *gorm.DB
+type Subscriber struct {
+	Db                   *gorm.DB
+	EthMainnetClient     *ethclient.Client
+	PolygonMainnetClient *ethclient.Client
+	GoerliClinet         *ethclient.Client
+	FVMWallabyClient     *ethclient.Client
 }
 
-func (s subscriber) SelectAllContract() ([]models.Contract, error) {
+func (s Subscriber) SelectAllContract() ([]models.Contract, error) {
 	var contracts []models.Contract
 
-	if err := s.db.Select("ProxyAddress", "Network", "Email").Find(&contracts).Error; err != nil {
-		log.Fatal("Select all contract from db error", err)
+	if err := s.Db.Select("ProxyAddress", "Network", "Email").Find(&contracts).Error; err != nil {
+		logrus.Errorln("Select all contract from db error", err)
 		return nil, err
 	}
 
 	return contracts, nil
 }
 
-func (s subscriber) SubscribeAllContract(contracts []models.Contract) error {
+func (s Subscriber) SubscribeAllContract(contracts []models.Contract) {
 	for _, contract := range contracts {
-		contractAddressStr := contract.ProxyAddress
-		network := contract.Network
-		receiverEmail := contract.Email
-
-		var client *ethclient.Client
-		var err error
-		switch network {
-		case blockchain.EthMainnet:
-			client, err = ethclient.Dial(conf.GetRPC().EthMainnt)
-			if err != nil {
-				log.Fatal("eth client dial eth mainnet error:", err)
-				return err
-			}
-		case blockchain.PolygonMainnet:
-			client, err = ethclient.Dial(conf.GetRPC().PolygoMainnet)
-			if err != nil {
-				log.Fatal("polygon client dial polygon mainnet error:", err)
-				return err
-			}
-		case blockchain.GoerilTestNet:
-			client, err = ethclient.Dial(conf.GetRPC().GoerliTestnet)
-			if err != nil {
-				log.Fatal("goeril client dial goerli testnet error:", err)
-				return err
-			}
-		}
-
-		contractAddress := common.HexToAddress(contractAddressStr)
-		topicHash := crypto.Keccak256Hash([]byte("OwnershipTransferred(address,address)"))
-		log.Printf("%s", topicHash.String())
-		query := ethereum.FilterQuery{
-			Addresses: []common.Address{contractAddress},
-			Topics:    [][]common.Hash{{topicHash}},
-		}
-
-		logs := make(chan types.Log)
-		sub, err := client.SubscribeFilterLogs(context.Background(), query, logs)
-		if err != nil {
-			log.Fatal("SubscribeFilterLogs error:", err)
-		}
-
-		go func(ethereum.Subscription, chan types.Log, string, *ethclient.Client) {
-			for {
-				select {
-				case err := <-sub.Err():
-					log.Fatal("get log from chan error:", err)
-				case currentLog := <-logs:
-					oldProxyAddress := common.BytesToAddress(currentLog.Data[:32])
-					newProxyAddress := common.BytesToAddress(currentLog.Data[32:])
-					historyInfo := models.ContractHistory{
-						UpdateBlock:   currentLog.BlockNumber,
-						UpdateTX:      currentLog.TxHash.Hex(),
-						PreviousOwner: oldProxyAddress.String(),
-						NewOwner:      newProxyAddress.String(),
-					}
-					s.updateContract(contractAddressStr, historyInfo, client)
-					sendEmail(receiverEmail, oldProxyAddress, newProxyAddress)
-				}
-			}
-		}(sub, logs, contractAddressStr, client)
+		go s.SubscribeOneContract(contract)
 	}
-	return nil
+}
+
+func (s Subscriber) SubscribeOneContract(contract models.Contract) {
+	log.Printf("%+v", contract)
+	contractAddressStr := contract.ProxyAddress
+	network := contract.Network
+	receiverEmail := contract.Email
+
+	var client *ethclient.Client
+	var err error
+	switch network {
+	case blockchain.EthMainnet:
+		client = s.EthMainnetClient
+	case blockchain.PolygonMainnet:
+		client = s.PolygonMainnetClient
+	case blockchain.GoerliTestNet:
+		client = s.GoerliClinet
+	}
+
+	contractAddress := common.HexToAddress(contractAddressStr)
+	topicHash := crypto.Keccak256Hash([]byte("OwnershipTransferred(address,address)"))
+	query := ethereum.FilterQuery{
+		Addresses: []common.Address{contractAddress},
+		Topics:    [][]common.Hash{{topicHash}},
+	}
+
+	logs := make(chan types.Log)
+	sub, err := client.SubscribeFilterLogs(context.Background(), query, logs)
+	if err != nil {
+		logrus.Errorln("SubscribeFilterLogs error:", err)
+	}
+	for {
+		select {
+		case err := <-sub.Err():
+			logrus.Errorln("get log from chan error:", err)
+		case currentLog := <-logs:
+			oldProxyAddress := common.BytesToAddress(currentLog.Data[:32])
+			newProxyAddress := common.BytesToAddress(currentLog.Data[32:])
+			historyInfo := models.ContractHistory{
+				UpdateBlock:   currentLog.BlockNumber,
+				UpdateTX:      currentLog.TxHash.Hex(),
+				PreviousOwner: oldProxyAddress.String(),
+				NewOwner:      newProxyAddress.String(),
+			}
+			sendEmail(receiverEmail, oldProxyAddress, newProxyAddress)
+			s.updateContract(contractAddressStr, historyInfo, client)
+		}
+	}
 }
 
 func sendEmail(receiverEmail string, oldAdmin common.Address, newAdmin common.Address) {
@@ -113,15 +105,15 @@ func sendEmail(receiverEmail string, oldAdmin common.Address, newAdmin common.Ad
 
 	err := e.Send("smtp.qq.com:25", smtp.PlainAuth("", config.Username, authCode, "smtp.qq.com"))
 	if err != nil {
-		log.Fatal("Send Email error:", err)
+		logrus.Errorln("Send Email error:", err)
 	} else {
 		log.Println("Send email successfully!")
 	}
 }
 
 // updateContract update the contract lastUpdate time & owner & create history record
-func (s subscriber) updateContract(contractAddress string, historyInfo models.ContractHistory, client *ethclient.Client) {
-	tx := s.db.Begin()
+func (s Subscriber) updateContract(contractAddress string, historyInfo models.ContractHistory, client *ethclient.Client) {
+	tx := s.Db.Begin()
 	var contract models.Contract
 	if err := tx.Model(&models.Contract{}).Where("proxy_address = ?", contractAddress).
 		First(&contract).Error; err != nil {

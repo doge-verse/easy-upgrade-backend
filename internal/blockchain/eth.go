@@ -3,11 +3,9 @@ package blockchain
 import (
 	"context"
 	"errors"
-	"log"
 	"math/big"
 
 	"github.com/doge-verse/easy-upgrade-backend/internal/blockchain/abi"
-	"github.com/doge-verse/easy-upgrade-backend/internal/conf"
 	"github.com/doge-verse/easy-upgrade-backend/models"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -19,7 +17,7 @@ import (
 const (
 	EthMainnet        uint = 1
 	PolygonMainnet    uint = 137
-	GoerilTestNet     uint = 5
+	GoerliTestNet     uint = 5
 	FVMWallabyTestnet uint = 31415
 )
 
@@ -29,44 +27,30 @@ var (
 )
 
 var (
-	ethClient        *ethclient.Client
-	polygonClient    *ethclient.Client
-	goerliClient     *ethclient.Client
-	fVMWallabyClient *ethclient.Client
+	clientEth        *ethclient.Client
+	clientPolygon    *ethclient.Client
+	clientGoerli     *ethclient.Client
+	clientFVMWallaby *ethclient.Client
 )
 
-func Init() {
-	var err error
-	// create client
-	ethClient, err = ethclient.Dial(conf.GetRPC().EthMainnt)
-	if err != nil {
-		log.Fatalln("EthMainnet Dial err:", err)
-	}
-	polygonClient, err = ethclient.Dial(conf.GetRPC().PolygoMainnet)
-	if err != nil {
-		log.Fatalln("PolygonMainnet Dial err:", err)
-	}
-	goerliClient, err = ethclient.Dial(conf.GetRPC().GoerliTestnet)
-	if err != nil {
-		log.Fatalln("GoerilTestNet Dial err:", err)
-	}
-	fVMWallabyClient, err = ethclient.Dial(conf.GetRPC().GoerliTestnet)
-	if err != nil {
-		log.Fatalln("GoerilTestNet Dial err:", err)
-	}
+func Init(ethClient, polygonClient, goerliClient, fVMWallabyClient *ethclient.Client) {
+	clientEth = ethClient
+	clientPolygon = polygonClient
+	clientGoerli = goerliClient
+	clientFVMWallaby = fVMWallabyClient
 }
 
 func GetOwnershipTransferredEvent(addr string, network uint) ([]models.ContractHistory, error) {
 	var client *ethclient.Client
 	switch network {
 	case EthMainnet:
-		client = ethClient
+		client = clientEth
 	case PolygonMainnet:
-		client = polygonClient
-	case GoerilTestNet:
-		client = goerliClient
+		client = clientPolygon
+	case GoerliTestNet:
+		client = clientGoerli
 	case FVMWallabyTestnet:
-		client = fVMWallabyClient
+		client = clientFVMWallaby
 	}
 
 	number, err := client.BlockNumber(context.Background())
@@ -118,16 +102,17 @@ func GetOwnershipTransferredEvent(addr string, network uint) ([]models.ContractH
 }
 
 func GetProxyOwner(addr string, network uint) (string, error) {
+	// TODO: reuse the client from init
 	var client *ethclient.Client
 	switch network {
 	case EthMainnet:
-		client = ethClient
+		client = clientEth
 	case PolygonMainnet:
-		client = polygonClient
-	case GoerilTestNet:
-		client = goerliClient
+		client = clientPolygon
+	case GoerliTestNet:
+		client = clientGoerli
 	case FVMWallabyTestnet:
-		client = fVMWallabyClient
+		client = clientFVMWallaby
 	}
 
 	contractAddr := common.HexToAddress(addr)

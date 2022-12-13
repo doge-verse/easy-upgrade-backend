@@ -3,13 +3,19 @@ package contract
 import (
 	"github.com/doge-verse/easy-upgrade-backend/api/request"
 	"github.com/doge-verse/easy-upgrade-backend/internal/blockchain"
+	"github.com/doge-verse/easy-upgrade-backend/internal/subscriber"
 	"github.com/doge-verse/easy-upgrade-backend/models"
+	"github.com/ethereum/go-ethereum/ethclient"
 
 	"gorm.io/gorm"
 )
 
 type service struct {
-	db *gorm.DB
+	db               *gorm.DB
+	ethClient        *ethclient.Client
+	polygonClient    *ethclient.Client
+	goerliClient     *ethclient.Client
+	fVMWallabyClient *ethclient.Client
 }
 
 // AddContract .
@@ -24,6 +30,16 @@ func (repo service) AddContract(contract *models.Contract) (*models.Contract, er
 		Create(contract).Error; err != nil {
 		return nil, err
 	}
+
+	s := &subscriber.Subscriber{
+		Db:                   repo.db,
+		EthMainnetClient:     repo.ethClient,
+		PolygonMainnetClient: repo.polygonClient,
+		GoerliClinet:         repo.goerliClient,
+	}
+
+	go s.SubscribeOneContract(*contract)
+
 	go func() {
 		historyList, err := blockchain.GetOwnershipTransferredEvent(contract.ProxyAddress, contract.Network)
 		if err == nil && len(historyList) > 0 {
