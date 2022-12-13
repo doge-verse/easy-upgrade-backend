@@ -38,17 +38,17 @@ func Init() {
 	// create client
 	ethClient, err = ethclient.Dial(conf.GetRPC().EthMainnt)
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatalln("EthMainnt Dial err:", err)
 		return
 	}
 	polygonClient, err = ethclient.Dial(conf.GetRPC().PolygoMainnet)
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatalln("PolygoMainnet Dial err:", err)
 		return
 	}
 	goerliClient, err = ethclient.Dial(conf.GetRPC().GoerliTestnet)
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatalln("GoerliTestnet Dial err:", err)
 		return
 	}
 }

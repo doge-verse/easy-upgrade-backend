@@ -15,8 +15,8 @@ func Init() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	log.Println(contracts)
-	// if err = s.SubscribeAllContract(contracts); err != nil {
-	// 	log.Fatalln(err)
-	// }
+
+	if err = s.SubscribeAllContract(contracts); err != nil {
+		log.Fatalln(err)
+	}
 }

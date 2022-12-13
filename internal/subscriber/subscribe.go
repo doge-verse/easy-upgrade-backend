@@ -71,16 +71,18 @@ func (s subscriber) SubscribeAllContract(contracts []models.Contract) error {
 			log.Fatal("SubscribeFilterLogs error:", err)
 		}
 
-		for {
-			select {
-			case err := <-sub.Err():
-				log.Fatal("get log from chan error:", err)
-			case currentLog := <-logs:
-				oldProxyAddress := common.BytesToAddress(currentLog.Data[:32])
-				newProxyAddress := common.BytesToAddress(currentLog.Data[32:])
-				sendEmail(receiverEmail, oldProxyAddress, newProxyAddress)
+		go func(ethereum.Subscription, chan types.Log) {
+			for {
+				select {
+				case err := <-sub.Err():
+					log.Fatal("get log from chan error:", err)
+				case currentLog := <-logs:
+					oldProxyAddress := common.BytesToAddress(currentLog.Data[:32])
+					newProxyAddress := common.BytesToAddress(currentLog.Data[32:])
+					sendEmail(receiverEmail, oldProxyAddress, newProxyAddress)
+				}
 			}
-		}
+		}(sub, logs)
 	}
 	return nil
 }
@@ -95,7 +97,7 @@ func sendEmail(receiverEmail string, oldAdmin common.Address, newAdmin common.Ad
 	e.Subject = "Proxy Admin Change"
 	e.Text = []byte(fmt.Sprintf("The proxy admin has changed from %s to %s!", oldAdmin.String(), newAdmin.String()))
 
-	err := e.Send("smtp.qq.com:25", smtp.PlainAuth("", config.From, authCode, "smtp.qq.com"))
+	err := e.Send("smtp.qq.com:25", smtp.PlainAuth("", config.Username, authCode, "smtp.qq.com"))
 	if err != nil {
 		log.Fatal("Send Email error:", err)
 	} else {
