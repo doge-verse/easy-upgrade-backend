@@ -97,21 +97,18 @@ func GetOwnershipTransferredEvent(addr string, network uint) ([]models.ContractH
 		for i := range eventLog.Topics {
 			topics = append(topics, eventLog.Topics[i].Hex())
 		}
-
-		if topics[0] == topicHash.Hex() && len(topics) == OwnershipEventTopicLen {
-			var blockTime uint64
-			blockInfo, err := client.BlockByNumber(context.Background(), big.NewInt(int64(eventLog.BlockNumber)))
-			if err == nil {
-				blockTime = blockInfo.Time()
-			}
-			results = append(results, models.ContractHistory{
-				UpdateBlock:   eventLog.BlockNumber,
-				UpdateTime:    blockTime,
-				UpdateTX:      eventLog.TxHash.Hex(),
-				PreviousOwner: common.HexToAddress(topics[1]).String(),
-				NewOwner:      common.HexToAddress(topics[2]).String(),
-			})
+		var blockTime uint64
+		blockInfo, err := client.BlockByNumber(context.Background(), big.NewInt(int64(eventLog.BlockNumber)))
+		if err == nil {
+			blockTime = blockInfo.Time()
 		}
+		results = append(results, models.ContractHistory{
+			UpdateBlock:   eventLog.BlockNumber,
+			UpdateTime:    blockTime,
+			UpdateTX:      eventLog.TxHash.Hex(),
+			PreviousOwner: common.HexToAddress(topics[1]).String(),
+			NewOwner:      common.HexToAddress(topics[2]).String(),
+		})
 	}
 	return results, errors.New("not found")
 }

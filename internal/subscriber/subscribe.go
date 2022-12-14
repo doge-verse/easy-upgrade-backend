@@ -72,12 +72,8 @@ func (s Subscriber) SubscribeOneContract(contract models.Contract) {
 		case err := <-sub.Err():
 			logrus.Errorln("get log from chan error:", err)
 		case currentLog := <-logs:
-			var topics []string
-			for i := range currentLog.Topics {
-				topics = append(topics, currentLog.Topics[i].Hex())
-			}
-			oldProxyAddress := common.HexToAddress(topics[1]).String()
-			newProxyAddress := common.HexToAddress(topics[2]).String()
+			oldProxyAddress := common.HexToAddress(currentLog.Topics[1].Hex()).String()
+			newProxyAddress := common.HexToAddress(currentLog.Topics[2].Hex()).String()
 			historyInfo := models.ContractHistory{
 				UpdateBlock:   currentLog.BlockNumber,
 				UpdateTX:      currentLog.TxHash.Hex(),
