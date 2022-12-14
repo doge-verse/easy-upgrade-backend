@@ -55,7 +55,7 @@ func (s Subscriber) SubscribeOneContract(contract models.Contract) {
 	}
 
 	contractAddress := common.HexToAddress(contractAddressStr)
-	topicHash := crypto.Keccak256Hash([]byte("OwnershipTransferred(address,address)"))
+	topicHash := crypto.Keccak256Hash([]byte(blockchain.OwnershipEvent))
 	query := ethereum.FilterQuery{
 		Addresses: []common.Address{contractAddress},
 		Topics:    [][]common.Hash{{topicHash}},
@@ -65,19 +65,24 @@ func (s Subscriber) SubscribeOneContract(contract models.Contract) {
 	sub, err := client.SubscribeFilterLogs(context.Background(), query, logs)
 	if err != nil {
 		logrus.Errorln("SubscribeFilterLogs error:", err)
+		return
 	}
 	for {
 		select {
 		case err := <-sub.Err():
 			logrus.Errorln("get log from chan error:", err)
 		case currentLog := <-logs:
-			oldProxyAddress := common.BytesToAddress(currentLog.Data[:32])
-			newProxyAddress := common.BytesToAddress(currentLog.Data[32:])
+			var topics []string
+			for i := range currentLog.Topics {
+				topics = append(topics, currentLog.Topics[i].Hex())
+			}
+			oldProxyAddress := common.HexToAddress(topics[1]).String()
+			newProxyAddress := common.HexToAddress(topics[2]).String()
 			historyInfo := models.ContractHistory{
 				UpdateBlock:   currentLog.BlockNumber,
 				UpdateTX:      currentLog.TxHash.Hex(),
-				PreviousOwner: oldProxyAddress.String(),
-				NewOwner:      newProxyAddress.String(),
+				PreviousOwner: oldProxyAddress,
+				NewOwner:      newProxyAddress,
 			}
 			sendEmail(receiverEmail, oldProxyAddress, newProxyAddress)
 			s.updateContract(contractAddressStr, historyInfo, client)
@@ -85,7 +90,7 @@ func (s Subscriber) SubscribeOneContract(contract models.Contract) {
 	}
 }
 
-func sendEmail(receiverEmail string, oldAdmin common.Address, newAdmin common.Address) {
+func sendEmail(receiverEmail string, oldAdmin string, newAdmin string) {
 	config := conf.GetEmailConf()
 	authCode := config.AuthCode
 
@@ -93,7 +98,7 @@ func sendEmail(receiverEmail string, oldAdmin common.Address, newAdmin common.Ad
 	e.From = config.From
 	e.To = []string{receiverEmail}
 	e.Subject = "Proxy Admin Change"
-	e.Text = []byte(fmt.Sprintf("The proxy admin has changed from %s to %s!", oldAdmin.String(), newAdmin.String()))
+	e.Text = []byte(fmt.Sprintf("The proxy admin has changed from %s to %s!", oldAdmin, newAdmin))
 
 	err := e.Send("smtp.qq.com:25", smtp.PlainAuth("", config.Username, authCode, "smtp.qq.com"))
 	if err != nil {

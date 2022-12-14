@@ -26,8 +26,8 @@ const (
 )
 
 var (
-	ownershipEvent         = "OwnershipTransferred(address,address)"
-	ownershipEventTopicLen = 3
+	OwnershipEvent         = "OwnershipTransferred(address,address)"
+	OwnershipEventTopicLen = 3
 	ClientList             map[uint]*ethclient.Client
 )
 
@@ -75,7 +75,7 @@ func GetOwnershipTransferredEvent(addr string, network uint) ([]models.ContractH
 
 	contractAddress := common.HexToAddress(addr)
 	// hash event
-	eventSignature := []byte(ownershipEvent)
+	eventSignature := []byte(OwnershipEvent)
 	topicHash := crypto.Keccak256Hash(eventSignature)
 
 	fromBlock := big.NewInt(int64(number) - 1000)
@@ -98,7 +98,7 @@ func GetOwnershipTransferredEvent(addr string, network uint) ([]models.ContractH
 			topics = append(topics, eventLog.Topics[i].Hex())
 		}
 
-		if topics[0] == topicHash.Hex() && len(topics) == ownershipEventTopicLen {
+		if topics[0] == topicHash.Hex() && len(topics) == OwnershipEventTopicLen {
 			var blockTime uint64
 			blockInfo, err := client.BlockByNumber(context.Background(), big.NewInt(int64(eventLog.BlockNumber)))
 			if err == nil {
