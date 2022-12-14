@@ -84,8 +84,8 @@ func (s Subscriber) SubscribeOneContract(contract models.Contract) {
 				PreviousOwner: oldProxyAddress,
 				NewOwner:      newProxyAddress,
 			}
-			sendEmail(receiverEmail, oldProxyAddress, newProxyAddress)
 			s.updateContract(contractAddressStr, historyInfo, client)
+			sendEmail(receiverEmail, oldProxyAddress, newProxyAddress)
 		}
 	}
 }
