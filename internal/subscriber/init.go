@@ -4,16 +4,11 @@ import (
 	"log"
 
 	"github.com/doge-verse/easy-upgrade-backend/internal/sql"
-	"github.com/ethereum/go-ethereum/ethclient"
 )
 
-func Init(ethClient, polygonClient, goerliClient, fVMWallabyClient *ethclient.Client) {
+func Init() {
 	s := &Subscriber{
-		Db:                   sql.Db,
-		EthMainnetClient:     ethClient,
-		PolygonMainnetClient: polygonClient,
-		GoerliClinet:         goerliClient,
-		FVMWallabyClient:     fVMWallabyClient,
+		Db: sql.Db,
 	}
 
 	contracts, err := s.SelectAllContract()

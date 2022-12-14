@@ -3,17 +3,19 @@ package conf
 import "github.com/spf13/viper"
 
 type RPC struct {
-	EthMainnet     string
-	PolygonMainnet string
-	GoerliTestnet  string
-	WallabyTestnet string
+	MainnetEth     string
+	MainnetPolygon string
+	TestnetGoerli  string
+	TestnetWallaby string
+	TestnetMumbai  string
 }
 
 func GetRPC() *RPC {
 	return &RPC{
-		EthMainnet:     viper.GetString("rpc.eth_mainnet"),
-		PolygonMainnet: viper.GetString("rpc.polygon_mainnet"),
-		GoerliTestnet:  viper.GetString("rpc.goerli_testnet"),
-		WallabyTestnet: viper.GetString("rpc.wallaby_testnet"),
+		MainnetEth:     viper.GetString("rpc.eth_mainnet"),
+		MainnetPolygon: viper.GetString("rpc.polygon_mainnet"),
+		TestnetGoerli:  viper.GetString("rpc.goerli_testnet"),
+		TestnetWallaby: viper.GetString("rpc.wallaby_testnet"),
+		TestnetMumbai:  viper.GetString("rpc.mumbai_testnet"),
 	}
 }

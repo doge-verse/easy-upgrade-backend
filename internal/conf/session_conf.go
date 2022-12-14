@@ -21,3 +21,7 @@ func GetSessionStore() cookie.Store {
 	}
 	return store
 }
+
+func GetTokenExpire() int {
+	return viper.GetInt("session.expires-time")
+}

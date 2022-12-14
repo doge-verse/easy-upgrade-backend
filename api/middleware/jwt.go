@@ -7,6 +7,7 @@ import (
 	"github.com/doge-verse/easy-upgrade-backend/api/request"
 	"github.com/doge-verse/easy-upgrade-backend/api/response"
 	"github.com/doge-verse/easy-upgrade-backend/internal/cache"
+	"github.com/doge-verse/easy-upgrade-backend/internal/conf"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	"github.com/pkg/errors"
@@ -37,6 +38,7 @@ func JWTAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		claims, err := CheckoutSession(c)
 		if err != nil {
+			response.Fail(c, err)
 			c.Abort()
 			logrus.Infof("JWTAuth error: %+v \n", err)
 			return
@@ -49,17 +51,15 @@ func JWTAuth() gin.HandlerFunc {
 func CheckoutSession(c *gin.Context) (*request.CustomClaims, error) {
 	token := c.Request.Header.Get("Authorization")
 	if token == "" {
-		response.Fail(c, TokenIsEmpty)
 		return nil, TokenIsEmpty
 	}
 	j := NewJWT()
 	claims, err := j.ParseToken(token)
 	if err != nil {
-		response.Fail(c, err)
 		return nil, err
 	}
-	err, userJwt := GetRedisJWT(claims.UserID)
-	if userJwt != token {
+	userJwt, err := GetRedisJWT(claims.UserID)
+	if err != nil || userJwt != token {
 		return nil, TokenInvalid
 	}
 	return claims, nil
@@ -105,7 +105,7 @@ func SignJwt(userID uint) (string, int64, error) {
 		UserID: userID,
 		StandardClaims: jwt.StandardClaims{
 			NotBefore: time.Now().Unix() - 1000,
-			ExpiresAt: time.Now().Unix() + viper.GetInt64("session.expires-time"),
+			ExpiresAt: time.Now().Unix() + int64(conf.GetTokenExpire()),
 			Issuer:    "easy-upgrade",
 		},
 	}
@@ -121,13 +121,12 @@ func SignJwt(userID uint) (string, int64, error) {
 }
 
 // GetRedisJWT .
-func GetRedisJWT(userID uint) (err error, redisJWT string) {
-	redisJWT, err = cache.Redis.Get(context.Background(), cast.ToString(userID)).Result()
-	return err, redisJWT
+func GetRedisJWT(userID uint) (string, error) {
+	return cache.Redis.Get(context.Background(), cast.ToString(userID)).Result()
 }
 
 // SetRedisJWT .
-func SetRedisJWT(jwt string, userID uint) (err error) {
-	timer := time.Duration(viper.GetInt64("session.expires-time")) * time.Second
+func SetRedisJWT(jwt string, userID uint) error {
+	timer := time.Duration(conf.GetTokenExpire()) * time.Second
 	return cache.Redis.Set(context.Background(), cast.ToString(userID), jwt, timer).Err()
 }

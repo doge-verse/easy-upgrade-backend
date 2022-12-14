@@ -8,6 +8,7 @@ import (
 
 	"github.com/doge-verse/easy-upgrade-backend/internal/blockchain"
 	"github.com/doge-verse/easy-upgrade-backend/internal/conf"
+	"github.com/doge-verse/easy-upgrade-backend/internal/shared"
 	"github.com/doge-verse/easy-upgrade-backend/models"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
@@ -20,11 +21,7 @@ import (
 )
 
 type Subscriber struct {
-	Db                   *gorm.DB
-	EthMainnetClient     *ethclient.Client
-	PolygonMainnetClient *ethclient.Client
-	GoerliClinet         *ethclient.Client
-	FVMWallabyClient     *ethclient.Client
+	Db *gorm.DB
 }
 
 func (s Subscriber) SelectAllContract() ([]models.Contract, error) {
@@ -50,15 +47,11 @@ func (s Subscriber) SubscribeOneContract(contract models.Contract) {
 	network := contract.Network
 	receiverEmail := contract.Email
 
-	var client *ethclient.Client
 	var err error
-	switch network {
-	case blockchain.EthMainnet:
-		client = s.EthMainnetClient
-	case blockchain.PolygonMainnet:
-		client = s.PolygonMainnetClient
-	case blockchain.GoerliTestNet:
-		client = s.GoerliClinet
+	client, ok := blockchain.ClientList[network]
+	if !ok {
+		logrus.Errorln(shared.ErrChainNotInit)
+		return
 	}
 
 	contractAddress := common.HexToAddress(contractAddressStr)

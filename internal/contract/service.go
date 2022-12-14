@@ -5,17 +5,11 @@ import (
 	"github.com/doge-verse/easy-upgrade-backend/internal/blockchain"
 	"github.com/doge-verse/easy-upgrade-backend/internal/subscriber"
 	"github.com/doge-verse/easy-upgrade-backend/models"
-	"github.com/ethereum/go-ethereum/ethclient"
-
 	"gorm.io/gorm"
 )
 
 type service struct {
-	db               *gorm.DB
-	ethClient        *ethclient.Client
-	polygonClient    *ethclient.Client
-	goerliClient     *ethclient.Client
-	fVMWallabyClient *ethclient.Client
+	db *gorm.DB
 }
 
 // AddContract .
@@ -32,10 +26,7 @@ func (repo service) AddContract(contract *models.Contract) (*models.Contract, er
 	}
 
 	s := &subscriber.Subscriber{
-		Db:                   repo.db,
-		EthMainnetClient:     repo.ethClient,
-		PolygonMainnetClient: repo.polygonClient,
-		GoerliClinet:         repo.goerliClient,
+		Db: repo.db,
 	}
 
 	go s.SubscribeOneContract(*contract)

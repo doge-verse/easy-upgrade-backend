@@ -26,6 +26,7 @@ rpc:
   polygon_mainnet:
   goerli_testnet:
   wallaby_testnet: wss://wss.wallaby.node.glif.io/apigw/lotus/rpc/v0
+  mumbai_testnet: wss://rpc-mumbai.matic.today
 
 email:
   authCode:

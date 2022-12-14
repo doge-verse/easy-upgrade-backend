@@ -3,9 +3,12 @@ package blockchain
 import (
 	"context"
 	"errors"
+	"log"
 	"math/big"
 
 	"github.com/doge-verse/easy-upgrade-backend/internal/blockchain/abi"
+	"github.com/doge-verse/easy-upgrade-backend/internal/conf"
+	"github.com/doge-verse/easy-upgrade-backend/internal/shared"
 	"github.com/doge-verse/easy-upgrade-backend/models"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -15,42 +18,54 @@ import (
 )
 
 const (
-	EthMainnet        uint = 1
-	PolygonMainnet    uint = 137
-	GoerliTestNet     uint = 5
-	FVMWallabyTestnet uint = 31415
+	MainnetEth     uint = 1
+	MainnetPolygon uint = 137
+	TestnetGoerli  uint = 5
+	TestnetWallaby uint = 31415
+	TestnetMumbai  uint = 80001
 )
 
 var (
 	ownershipEvent         = "OwnershipTransferred(address,address)"
 	ownershipEventTopicLen = 3
+	ClientList             map[uint]*ethclient.Client
 )
 
-var (
-	clientEth        *ethclient.Client
-	clientPolygon    *ethclient.Client
-	clientGoerli     *ethclient.Client
-	clientFVMWallaby *ethclient.Client
-)
-
-func Init(ethClient, polygonClient, goerliClient, fVMWallabyClient *ethclient.Client) {
-	clientEth = ethClient
-	clientPolygon = polygonClient
-	clientGoerli = goerliClient
-	clientFVMWallaby = fVMWallabyClient
+func Init() {
+	// create client from the beginning
+	clients := make(map[uint]*ethclient.Client)
+	clientEth, err := ethclient.Dial(conf.GetRPC().MainnetEth)
+	if err != nil {
+		log.Fatalln("clientEth Dial err:", err)
+	}
+	clients[MainnetEth] = clientEth
+	clientPolygon, err := ethclient.Dial(conf.GetRPC().MainnetPolygon)
+	if err != nil {
+		log.Fatalln("clientPolygon Dial err:", err)
+	}
+	clients[MainnetPolygon] = clientPolygon
+	clientGoerli, err := ethclient.Dial(conf.GetRPC().TestnetGoerli)
+	if err != nil {
+		log.Fatalln("clientGoerli Dial err:", err)
+	}
+	clients[TestnetGoerli] = clientGoerli
+	clientWallaby, err := ethclient.Dial(conf.GetRPC().TestnetWallaby)
+	if err != nil {
+		log.Fatalln("clientWallaby Dial err:", err)
+	}
+	clients[TestnetWallaby] = clientWallaby
+	clientMumbai, err := ethclient.Dial(conf.GetRPC().TestnetWallaby)
+	if err != nil {
+		log.Fatalln("clientWallaby Dial err:", err)
+	}
+	clients[TestnetMumbai] = clientMumbai
+	ClientList = clients
 }
 
 func GetOwnershipTransferredEvent(addr string, network uint) ([]models.ContractHistory, error) {
-	var client *ethclient.Client
-	switch network {
-	case EthMainnet:
-		client = clientEth
-	case PolygonMainnet:
-		client = clientPolygon
-	case GoerliTestNet:
-		client = clientGoerli
-	case FVMWallabyTestnet:
-		client = clientFVMWallaby
+	client, ok := ClientList[network]
+	if !ok {
+		return nil, shared.ErrChainNotInit
 	}
 
 	number, err := client.BlockNumber(context.Background())
@@ -102,17 +117,9 @@ func GetOwnershipTransferredEvent(addr string, network uint) ([]models.ContractH
 }
 
 func GetProxyOwner(addr string, network uint) (string, error) {
-	// TODO: reuse the client from init
-	var client *ethclient.Client
-	switch network {
-	case EthMainnet:
-		client = clientEth
-	case PolygonMainnet:
-		client = clientPolygon
-	case GoerliTestNet:
-		client = clientGoerli
-	case FVMWallabyTestnet:
-		client = clientFVMWallaby
+	client, ok := ClientList[network]
+	if !ok {
+		return "", shared.ErrChainNotInit
 	}
 
 	contractAddr := common.HexToAddress(addr)
