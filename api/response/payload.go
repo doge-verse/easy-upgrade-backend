@@ -1,10 +1,10 @@
 package response
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -45,5 +45,5 @@ func Fail(c *gin.Context, e error) {
 }
 
 func LogError(e error) {
-	log.Printf("error: 【full】 %+#v ", e)
+	logrus.Infof("error: 【full】 %+#v ", e)
 }

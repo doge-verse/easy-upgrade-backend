@@ -2,9 +2,9 @@ package conf
 
 import (
 	"fmt"
-	"log"
 	"os"
 
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
@@ -20,14 +20,14 @@ func Init() {
 	cfgFile := linuxCfg
 	if _, err := os.Stat(cfgFile); err == nil {
 		initViper(cfgFile)
-		log.Println("Using linux configuration")
+		logrus.Infoln("Using linux configuration")
 		return
 	}
 
 	cfgFile = devCfg
 	if _, err := os.Stat(cfgFile); err == nil {
 		initViper(cfgFile)
-		log.Println("Using cfgFile configuration")
+		logrus.Infoln("Using cfgFile configuration")
 		return
 	}
 
@@ -36,7 +36,7 @@ func Init() {
 		panic("Find config error: " + err.Error())
 	}
 	initViper(cfgFile)
-	log.Println("Using projectCfg configuration")
+	logrus.Infoln("Using projectCfg configuration")
 }
 
 func initViper(file string) {

@@ -23,9 +23,9 @@ session:
 
 rpc:
   eth-mainnet:
-  polygo_mainnet:
+  polygon_mainnet:
   goerli_testnet:
-  wallaby_testnet: wss://wallaby.node.glif.io/rpc/v0
+  wallaby_testnet: wss://wss.wallaby.node.glif.io/apigw/lotus/rpc/v0
 
 email:
   authCode:

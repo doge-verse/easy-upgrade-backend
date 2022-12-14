@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"github.com/doge-verse/easy-upgrade-backend/api/request"
@@ -11,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cast"
 	"github.com/spf13/viper"
 )
@@ -38,7 +38,7 @@ func JWTAuth() gin.HandlerFunc {
 		claims, err := CheckoutSession(c)
 		if err != nil {
 			c.Abort()
-			log.Printf("JWTAuth error: %+v \n", err)
+			logrus.Infof("JWTAuth error: %+v \n", err)
 			return
 		}
 		c.Set("claims", claims)

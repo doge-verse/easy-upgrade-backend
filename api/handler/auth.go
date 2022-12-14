@@ -2,7 +2,6 @@ package handler
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/doge-verse/easy-upgrade-backend/api/middleware"
 	"github.com/doge-verse/easy-upgrade-backend/api/request"
@@ -13,6 +12,7 @@ import (
 	"github.com/doge-verse/easy-upgrade-backend/models"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 func getUserIDFromSession(c *gin.Context) uint {
@@ -48,7 +48,7 @@ func currentUser(c *gin.Context) {
 	session := sessions.Default(c)
 	err := session.Save()
 	if err != nil {
-		log.Println(err)
+		logrus.Errorln(err)
 	}
 	response.Success(c, &response.RespResult{
 		Data: userInfo,
@@ -73,7 +73,7 @@ func currentLoginUser(c *gin.Context) {
 	}
 	err = session.Save()
 	if err != nil {
-		log.Println(err)
+		logrus.Errorln(err)
 	}
 	response.Success(c, &response.RespResult{
 		Data: userInfo,
@@ -134,7 +134,7 @@ func logoutUser(c *gin.Context) {
 	session.Delete("userID")
 	err := session.Save()
 	if err != nil {
-		log.Println(err)
+		logrus.Errorln(err)
 	}
 	response.Success(c, &response.RespResult{
 		Data: nil,

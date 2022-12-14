@@ -3,7 +3,6 @@ package subscriber
 import (
 	"context"
 	"fmt"
-	"log"
 	"math/big"
 	"net/smtp"
 
@@ -46,7 +45,7 @@ func (s Subscriber) SubscribeAllContract(contracts []models.Contract) {
 }
 
 func (s Subscriber) SubscribeOneContract(contract models.Contract) {
-	log.Printf("%+v", contract)
+	logrus.Infof("%+v", contract)
 	contractAddressStr := contract.ProxyAddress
 	network := contract.Network
 	receiverEmail := contract.Email
@@ -107,7 +106,7 @@ func sendEmail(receiverEmail string, oldAdmin common.Address, newAdmin common.Ad
 	if err != nil {
 		logrus.Errorln("Send Email error:", err)
 	} else {
-		log.Println("Send email successfully!")
+		logrus.Infoln("Send email successfully!")
 	}
 }
 
@@ -117,7 +116,7 @@ func (s Subscriber) updateContract(contractAddress string, historyInfo models.Co
 	var contract models.Contract
 	if err := tx.Model(&models.Contract{}).Where("proxy_address = ?", contractAddress).
 		First(&contract).Error; err != nil {
-		log.Println("The contract is not exist in db:", err)
+		logrus.Infoln("The contract is not exist in db:", err)
 		tx.Rollback()
 	}
 	historyInfo.ContractID = contract.ID
@@ -130,11 +129,11 @@ func (s Subscriber) updateContract(contractAddress string, historyInfo models.Co
 	contract.LastUpdate = blockTime
 	contract.ProxyOwner = historyInfo.NewOwner
 	if err = tx.Save(&contract).Error; err != nil {
-		log.Println("The contract update fail:", err)
+		logrus.Infoln("The contract update fail:", err)
 		tx.Rollback()
 	}
 	if err = tx.Model(&models.ContractHistory{}).Create(&historyInfo).Error; err != nil {
-		log.Println("The contract update history create fail:", err)
+		logrus.Infoln("The contract update history create fail:", err)
 		tx.Rollback()
 	}
 	tx.Commit()

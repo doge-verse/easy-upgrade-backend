@@ -2,11 +2,11 @@ package util
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -50,7 +50,7 @@ func Unsign(tokenString string) (uint, error) {
 			return []byte(tokenSecret), nil
 		})
 	if err != nil {
-		log.Printf(" %+v err with %+v", err, token)
+		logrus.Infof(" %+v err with %+v", err, token)
 	}
 	userID, err := strconv.Atoi(token.Claims.(*jwt.StandardClaims).Id)
 	if err != nil {
