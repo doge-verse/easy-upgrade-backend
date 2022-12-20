@@ -10,7 +10,6 @@ import (
 	"github.com/doge-verse/easy-upgrade-backend/internal/conf"
 	"github.com/doge-verse/easy-upgrade-backend/internal/shared"
 	"github.com/doge-verse/easy-upgrade-backend/models"
-	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -110,8 +109,9 @@ func (s Subscriber) updateContract(contractAddress string, historyInfo models.Co
 	var contract models.Contract
 	if err := tx.Model(&models.Contract{}).Where("proxy_address = ?", contractAddress).
 		First(&contract).Error; err != nil {
-		logrus.Infoln("The contract is not exist in db:", err)
+		logrus.Errorln("The contract is not exist in db:", err)
 		tx.Rollback()
+		return
 	}
 	historyInfo.ContractID = contract.ID
 	var blockTime uint64
@@ -123,12 +123,14 @@ func (s Subscriber) updateContract(contractAddress string, historyInfo models.Co
 	contract.LastUpdate = blockTime
 	contract.ProxyOwner = historyInfo.NewOwner
 	if err = tx.Save(&contract).Error; err != nil {
-		logrus.Infoln("The contract update fail:", err)
+		logrus.Errorln("The contract update fail:", err)
 		tx.Rollback()
+		return
 	}
 	if err = tx.Model(&models.ContractHistory{}).Create(&historyInfo).Error; err != nil {
-		logrus.Infoln("The contract update history create fail:", err)
+		logrus.Errorln("The contract update history create fail:", err)
 		tx.Rollback()
+		return
 	}
 	tx.Commit()
 }
